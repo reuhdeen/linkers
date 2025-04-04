@@ -1,0 +1,276 @@
+@import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+
+/* Extra small devices (phones, 600px and down) */
+@media only screen and (max-width: 600px) {
+  .card-title, .badge {
+    font-family: 'poppins' !important;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-size: 0.75rem !important;
+  }
+  .card-text {
+    font-size: 8px;
+  }
+  .text-muted {
+    font-size: 8px !important;
+  }
+  .card-price {
+    font-size: 10px;
+    margin: 0 !important;
+  }
+  .menu-card {
+    padding: 10px 5px 10px 5px;
+  }
+  .card-body {
+    padding: 10px 0 5px 0 !important;
+  }
+
+  .categories-container {
+    display: flex; /* Flex layout for horizontal alignment */
+    flex-wrap: nowrap; /* Prevent wrapping to a new line */
+    overflow-x: auto; /* Enable horizontal scrolling */
+    gap: 15px;
+    white-space: nowrap; /* Prevent text wrapping */
+    margin: 0;
+  }
+
+  .categories-container::-webkit-scrollbar {
+    height: 0; /* Height of the scrollbar */
+  }
+
+  .categories-container::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 4px;
+  }
+
+  .nav-link {
+    font-size: 12px;
+    padding: 0 0 5px 0;
+  }
+}
+
+/* Small devices (portrait tablets and large phones, 600px and up) */
+@media only screen and (max-width: 900px) {
+  .card-title {
+    font-family: 'poppins' !important;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-size: 0.75rem !important;
+  }
+  .card-text {
+    font-size: 10px;
+  }
+  .text-muted {
+    font-size: 10px !important;
+  }
+  .card-price {
+    font-size: 12px;
+    margin: 0 !important;
+  }
+  .menu-card {
+    padding: 10px 5px 10px 5px;
+  }
+  .card-body {
+    padding: 10px 0 5px 0 !important;
+  }
+
+  .categories-container {
+    display: flex; /* Flex layout for horizontal alignment */
+    flex-wrap: nowrap; /* Prevent wrapping to a new line */
+    overflow-x: auto; /* Enable horizontal scrolling */
+    white-space: nowrap; /* Prevent text wrapping */
+    margin: 0;
+  }
+
+  .categories-container::-webkit-scrollbar {
+    height: 0; /* Height of the scrollbar */
+  }
+
+  .categories-container::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 4px;
+  }
+
+  .nav-link {
+    font-size: 14px;
+    padding: 0 0 5px 0;
+    margin-right: 18px;
+  }
+}
+
+/* Medium devices (landscape tablets, 768px and up) */
+@media only screen and (min-width: 900px) {
+  .card-title, .badge {
+    font-family: 'poppins' !important;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-size: 0.5rem !important;
+  }
+}
+
+/* Extra large devices (large laptops and desktops, 1200px and up) */
+@media only screen and (min-width: 1200px) {
+  .card-title, .badge {
+    font-family: 'poppins' !important;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-size: 0.5rem !important;
+  }
+}
+
+.menu-card {
+  background-color: #191722;
+  border: none;
+  border-radius: 10px;
+  color: white;
+}
+.order-summary {
+  background-color: #191722;
+  border-radius: 10px;
+}
+.custom-btn {
+  color: #0fa0fb;
+  border-color: #0fa0fb; /* Remove border */
+  padding: 5px 10px 10px 10px;
+}
+
+.custom-btn:hover {
+  background-color: #0fa0fb; /* Darker shade for hover */
+}
+
+.btn-primary {
+  background-color: #0fa0fb;
+}
+.btn-primary:hover {
+  background-color: #3f424e; /* Darker shade for hover */
+  border: none;
+}
+
+.payment-methods h6 {
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.payment-card {
+  background-color: #191722;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  padding: 10px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.text-muted {
+  color: grey !important;
+  font-size: 12px !important;
+}
+
+.payment-card.selected {
+  border: 2px solid #0fa0fb;
+  box-shadow: 0 4px 12px #0fa0fb(0, 0, 0, 0.2);
+}
+
+.payment-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.payment-icon {
+  width: 40px;
+  height: 40px;
+}
+
+.payment-logos {
+  width: 100px;
+  height: auto;
+}
+
+.discount-tag {
+  font-size: 12px;
+  color: #28a745;
+  font-weight: bold;
+}
+
+.ewallet-options {
+  margin-top: 10px;
+}
+.ewallet-options .form-check {
+  margin-bottom: 10px;
+}
+
+.payment-icon {
+  color: #0fa0fb;
+  border: none;
+  background-color: #191722;
+}
+
+.card-payments {
+  width: 40%;
+  height: auto;
+}
+
+.card-price {
+  font-weight: bold;
+  color: gray;
+}
+
+.nav-link {
+  color: white;
+}
+
+.nav-link:hover {
+  color: rgb(179, 179, 179);
+}
+
+.nav-link.active {
+  color: rgb(179, 179, 179);
+  border-bottom: 2px solid #0fa0fb;
+}
+
+hr {
+  margin-bottom: 0;
+  padding: 0;
+  color: #383544;
+}
+
+.categories-sec {
+  padding-top: 20px;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background-color: #1e202c;
+}
+
+.inline-left-custom {
+  border-top-right-radius: 0px;
+  border-bottom-right-radius: 0px;
+}
+
+.inline-right-custom {
+  border-top-left-radius: 0px;
+  border-bottom-left-radius: 0px;
+}
+
+.modal-title {
+  color: black;
+}
+
+/* Receipt Modal*/
+.receipt-modal table,
+.receipt-modal tr,
+.receipt-modal td {
+  border: none;
+  padding: 2px;
+}
+
+.receipt-modal th {
+  border-top: 1px dashed black;
+  border-bottom: 1px dashed black;
+}
+
+.row-order td {
+  padding-bottom: 5px;
+}

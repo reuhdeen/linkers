@@ -1,0 +1,79 @@
+@import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+.receipt-modal .modal-body, .receipt-modal .modal-head{
+  font-family: 'DotGothic16', sans-serif !important;
+  font-size: 13px !important;
+  color: black ;
+}
+
+.container-fluid {
+  font-family: 'poppins' !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: 0.75rem !important;
+}
+h4  {
+  font-size: 1rem !important;
+}
+h3  {
+  font-size: 1.25rem !important;
+}
+span {
+  font-family: 'poppins' !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: 0.75rem !important;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
+}
+/* 
+input {
+  bac
+} */
+/* Extra small devices (phones, 600px and down) */
+@media only screen and (max-width: 600px) {
+  .page-title {
+    color: red;
+    font-size: 18px;
+  }
+  .section-title {
+    font-size: 16px;
+  }
+  .container-fluid {
+    padding: 10px 10px 60px 10px !important;
+  }
+}
+
+/* Small devices (portrait tablets and large phones, 600px and up) */
+@media only screen and (min-width: 600px) {
+  .page-title {
+    color: blue;
+  }
+  .container-fluid {
+    padding: 10px 10px 60px 10px !important;
+  }
+}
+
+/* Medium devices (landscape tablets, 768px and up) */
+@media only screen and (min-width: 900px) {
+  .page-title {
+    color: pink;
+  }
+  .container-fluid {
+    padding: 120px 20px 20px 140px !important;
+  }
+}
+
+/* Extra large devices (large laptops and desktops, 1200px and up) */
+@media only screen and (min-width: 1200px) {
+  .page-title {
+    color: white !important;
+  }
+  .container-fluid {
+    padding: 80px 20px 20px 100px !important;
+  }
+}

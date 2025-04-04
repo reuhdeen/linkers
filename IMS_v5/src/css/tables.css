@@ -1,0 +1,118 @@
+.custom-width {
+  width: 50px;
+}
+.img-table {
+  width: 35px;
+}
+.table td {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: #191722 !important;
+  color: white !important;
+}
+.no-border {
+  border: none !important;
+  padding-bottom: 0px !important;
+}
+/* 
+.card {
+  background-color: #191722 !important;
+} */
+th {
+  background-color: #21242a !important;
+  color: white !important ;
+  border: none !important;
+}
+
+.btn-warning {
+  background-color: #0fa0fb !important;
+  border: none !important;
+}
+.card {
+  background-color: #191722 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+}
+.card-table {
+  padding: 0px !important;
+}
+.t-4 {
+  padding: 20px;
+}
+
+.pagination-button {
+  color: #0fa0fb !important;
+  height: 30px;
+  width: 30px;
+}
+.pagination-button:hover {
+  background-color: #0fa1fb1f !important;
+}
+.pagination-button:active {
+  border: none !important;
+}
+.pagination-button:disabled {
+  border: none !important;
+}
+.btn-pagination-active {
+  background-color: #0fa0fb !important;
+  size: 12px !important;
+  height: 32px;
+  width: 32px;
+  border: none !important;
+  color: white !important;
+}
+.btn-pagination {
+  size: 12px !important;
+  height: 30px;
+  width: 30px;
+  border: none !important;
+  color: #0fa0fb !important;
+}
+.btn-pagination:hover {
+  background-color: #0fa1fb1f !important;
+}
+.pagination-form {
+  height: 30px;
+  width: 30px;
+  border-radius: 5px;
+  border: none;
+  box-shadow: none;
+}
+.pagination-form:focus {
+border: none !important;
+outline: none;
+}
+
+.pagination-form::-webkit-outer-spin-button,
+.pagination-form::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+
+.edit-button {
+  color: #0fa0fb;
+}
+
+
+.grid-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 25px 25px;
+  grid-template-areas:
+    "sale_summary-products sale_summary-products sale_summary-products sale_summary-products sale_summary-products sale_summary-products sale_summary-1 sale_summary-1 sale_summary-2 sale_summary-2 sale_summary-3 sale_summary-3"
+    "sale_summary-products sale_summary-products sale_summary-products sale_summary-products sale_summary-products sale_summary-products sale_summary-category sale_summary-category sale_summary-category sale_summary-type sale_summary-type sale_summary-type";
+}
+
+.sale_summary-products { grid-area: sale_summary-products; }
+
+.sale_summary-1 { grid-area: sale_summary-1; }
+
+.sale_summary-2 { grid-area: sale_summary-2; }
+
+.sale_summary-3 { grid-area: sale_summary-3; }
+
+.sale_summary-category { grid-area: sale_summary-category; }
+
+.sale_summary-type { grid-area: sale_summary-type; }

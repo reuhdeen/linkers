@@ -1,0 +1,23 @@
+
+
+
+
+.form-group-inline {
+  display: flex;
+  gap: 20px; /* Distance between dropdowns */
+  align-items: baseline; /* Align items at the bottom */
+  margin-top: 15px; /* Adjust this value as needed */
+}
+
+.submit-button-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end; /* Align items at the bottom */
+  margin-top: auto; /* Push the button to the bottom */
+  margin-bottom: 16px; /* Adjust this value as needed */
+}
+
+.left-align-text {
+  text-align: left;
+  padding-left: 25px; /* Add a gap of 15px from the left */
+}

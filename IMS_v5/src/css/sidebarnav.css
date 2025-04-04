@@ -1,0 +1,200 @@
+/* Sidebar Styles */
+.sidebar {
+  width: 80px; /* Collapsed width */
+  height: 100vh;
+  background-color: #191722;
+  color: white;
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 1000;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #3a3a3a transparent;
+  transition: width 0.3s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  padding-top: 10px;
+  border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Expand Sidebar on Hover */
+.sidebar:hover {
+  width: 200px;
+}
+
+/* Custom Scrollbar */
+.sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background-color: #3a3a3a;
+  border-radius: 10px;
+}
+
+/* Sidebar Categories */
+.menu-category {
+  margin-bottom: 10px;
+}
+
+.category-title {
+  font-size: 14px;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: #999;
+  padding: 10px 15px;
+  display: none;
+}
+
+/* Show category titles when expanded */
+.sidebar:hover .category-title {
+  display: block;
+}
+
+/* Sidebar Menu Item */
+.menu-item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 12px 15px;
+  transition: background-color 0.3s ease;
+  cursor: pointer;
+  text-decoration: none;
+  color: white;
+  font-size: 16px;
+  font-weight: 500;
+  border-radius: 5px;
+}
+
+/* Active Menu Item */
+.menu-item.active {
+  color: white;
+
+}
+
+.menu-item:hover {
+  color: #0fa0fb !important;
+}
+
+.menu-item:hover .menu-icon {
+  color: #0fa0fb !important;
+}
+
+/* Icon Styling */
+.menu-icon {
+  color: #747579;
+  font-size: 20px;
+  transition: transform 0.2s ease-in-out, margin-left 0.3s ease-in-out, text-align 0.3s ease-in-out;
+  margin-right: 0px;
+  text-align: center;
+  width: 100%;
+}
+
+/* Icon Styling */
+.menu-item.active .menu-icon {
+  color: #0fa0fb !important;
+}
+.menu-item.active {
+  color: #0fa0fb !important;
+}
+
+
+/* Hide Text by Default */
+.menu-name {
+  display: none;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out, margin-left 0.3s ease-in-out;
+  margin-left: 15px;
+}
+
+/* Align Icon to the Left when Sidebar is Hovered */
+.sidebar:hover .menu-icon {
+  text-align: left;
+  width: auto;
+  margin-left: 5px;
+}
+
+/* Show Text when Sidebar is Hovered */
+.sidebar:hover .menu-name {
+  display: inline;
+  opacity: 1;
+}
+
+/* Adjust Content Area */
+.content-area {
+  margin-left: 80px;
+  padding: 40px;
+  flex: 1;
+  height: 100vh;
+  overflow-y: auto;
+  transition: margin-left 0.3s ease-in-out;
+}
+
+/* Expand content area when sidebar is hovered */
+.sidebar:hover ~ .content-area {
+  margin-left: 250px;
+}
+
+/* Responsive Sidebar */
+@media only screen and (max-width: 900px) {
+  .sidebar {
+    width: 80px;
+  }
+
+  .content-area {
+    margin-left: 60px;
+  }
+
+  .sidebar:hover {
+    width: 200px;
+  }
+}
+
+@media only screen and (max-width: 600px) {
+  .sidebar.desktop-only {
+    display: none;
+  }
+}
+
+/* Logo Styling */
+.sidebar img {
+  width: 60px; /* Small size when sidebar is collapsed */
+  height: auto;
+  margin: 10px auto;
+  display: block;
+  transition: width 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  opacity: 0.7;
+}
+
+/* Adjust logo when sidebar is expanded */
+.sidebar:hover img {
+  width: 150px; /* Larger size when sidebar is expanded */
+  opacity: 1;
+}
+
+/* Hide scrollbar by default */
+.sidebar {
+  overflow-y: hidden; /* Hide overflow when not hovered */
+}
+
+/* Show scrollbar on hover */
+.sidebar:hover {
+  overflow-y: auto; /* Enable scrolling when hovered */
+}
+
+/* Custom Scrollbar (for Webkit browsers like Chrome, Edge, Safari) */
+.sidebar::-webkit-scrollbar {
+  width: 6px;
+  display: none; /* Hide scrollbar by default */
+}
+
+.sidebar:hover::-webkit-scrollbar {
+  display: block; /* Show scrollbar when hovered */
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background-color: #3a3a3a;
+  border-radius: 10px;
+}
