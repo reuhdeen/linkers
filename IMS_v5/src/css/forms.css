@@ -24,3 +24,18 @@
   background-color: #14131b;
 }
 
+.attribute-field {
+  display: flex;
+  margin-bottom: 15px;
+}
+
+.attribute-value {
+  font-size: 8px !important;
+  background-color: #b38b6765;
+  border-radius: 10px;
+  padding: 3px 10px;
+  display: flex;
+  align-items: center;
+gap: 5px;
+margin-right: 5px;
+}

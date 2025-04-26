@@ -10,6 +10,7 @@ const CustomDropdown = ({
   onChange,
   idField,
   nameField,
+  showAllOption = true,  // Default to true if not provided
 }) => {
   const [options, setOptions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -25,7 +26,17 @@ const CustomDropdown = ({
           table: "iposarv3." + endpoint,
           columns: "*",
         });
-        setOptions(data || []);
+
+        // Add "All Categories" option if showAllOption is true
+        if (showAllOption) {
+          const allOption = {
+            [idField]: "all",
+            [nameField]: "All Categories",
+          };
+          setOptions([allOption, ...(data || [])]);
+        } else {
+          setOptions(data || []);
+        }
       } catch (error) {
         console.error("Error fetching options:", error);
       } finally {
@@ -34,7 +45,7 @@ const CustomDropdown = ({
     };
 
     fetchOptions();
-  }, [endpoint]);
+  }, [endpoint, showAllOption]);
 
   return (
     <select
@@ -46,8 +57,7 @@ const CustomDropdown = ({
     >
       <option value="" disabled hidden>
         Choose an option
-      </option>{" "}
-      {/* Always appears first */}
+      </option>
       {loading ? (
         <option disabled>Loading...</option>
       ) : (

@@ -7,12 +7,19 @@
   color: black ;
 }
 
-.container-fluid {
+.container-fluid, .container-fullscreen  {
   font-family: 'poppins' !important;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-size: 0.75rem !important;
+  background-color: #1e202c !important;
+  color: white !important;
 }
+html, body {
+  height: 100% !important;
+  background-color: #1e202c !important;
+}
+
 h4  {
   font-size: 1rem !important;
 }
@@ -46,6 +53,9 @@ input {
   .container-fluid {
     padding: 10px 10px 60px 10px !important;
   }
+  /* .container-fullscreen {
+    padding: 10px 10px 10px 10px !important;
+  } */
 }
 
 /* Small devices (portrait tablets and large phones, 600px and up) */
@@ -56,15 +66,21 @@ input {
   .container-fluid {
     padding: 10px 10px 60px 10px !important;
   }
+  /* .container-fullscreen {
+    padding: 10px 10px 10px 10px !important;
+  } */
 }
 
 /* Medium devices (landscape tablets, 768px and up) */
 @media only screen and (min-width: 900px) {
   .page-title {
-    color: pink;
+    color: rgb(255, 255, 255);
   }
   .container-fluid {
-    padding: 120px 20px 20px 140px !important;
+    padding: 80px 20px 20px 100px !important;
+  }
+  .container-fullscreen {
+    padding: 80px 20px 80px 160px !important;
   }
 }
 
@@ -75,5 +91,8 @@ input {
   }
   .container-fluid {
     padding: 80px 20px 20px 100px !important;
+  }
+  .container-fullscreen {
+    padding: 80px 20px 80px 160px !important;
   }
 }

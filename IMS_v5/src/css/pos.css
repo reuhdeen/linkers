@@ -131,17 +131,22 @@
   border-radius: 10px;
 }
 .custom-btn {
-  color: #0fa0fb;
-  border-color: #0fa0fb; /* Remove border */
+  color: #ff9f44;
+  border-color: #ff9f44; /* Remove border */
   padding: 5px 10px 10px 10px;
 }
 
 .custom-btn:hover {
-  background-color: #0fa0fb; /* Darker shade for hover */
+  background-color: #ff9f44; /* Darker shade for hover */
 }
 
-.btn-primary {
-  background-color: #0fa0fb;
+
+.btn-primary, .btn-warning {
+  background-color: #ff9f44;
+  font-size: 13px !important;
+  padding: 8px 12px !important;
+  border: none;
+  color: white !important;
 }
 .btn-primary:hover {
   background-color: #3f424e; /* Darker shade for hover */
@@ -169,8 +174,8 @@
 }
 
 .payment-card.selected {
-  border: 2px solid #0fa0fb;
-  box-shadow: 0 4px 12px #0fa0fb(0, 0, 0, 0.2);
+  border: 2px solid #ff9f44;
+  box-shadow: 0 4px 12px #ff9f44(0, 0, 0, 0.2);
 }
 
 .payment-card:hover {
@@ -202,7 +207,7 @@
 }
 
 .payment-icon {
-  color: #0fa0fb;
+  color: #ff9f44;
   border: none;
   background-color: #191722;
 }
@@ -227,7 +232,7 @@
 
 .nav-link.active {
   color: rgb(179, 179, 179);
-  border-bottom: 2px solid #0fa0fb;
+  border-bottom: 2px solid #ff9f44;
 }
 
 hr {
@@ -255,7 +260,7 @@ hr {
 }
 
 .modal-title {
-  color: black;
+  color: white !important;
 }
 
 /* Receipt Modal*/

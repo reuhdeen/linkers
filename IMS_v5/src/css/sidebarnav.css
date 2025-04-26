@@ -8,15 +8,38 @@
   left: 0;
   top: 0;
   bottom: 0;
-  z-index: 1000;
+  z-index: 500;
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: #3a3a3a transparent;
   transition: width 0.3s ease-in-out;
   display: flex;
   flex-direction: column;
-  padding-top: 10px;
+  padding: 70px 10px 10px 10px;
   border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/*sidebar category*/
+.sidebar-category {
+  position: fixed;
+  width: 140px; /* Collapsed width */
+  background-color: #191722;
+  color: white;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  display: flex;
+
+  z-index: 500;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #3a3a3a transparent;
+  flex-direction: column;
+  border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+  padding: 70px 10px 50px 10px;
+}
+.menu-category .category-name{
+color: black !important;
 }
 
 /* Expand Sidebar on Hover */
@@ -56,7 +79,8 @@
 /* Sidebar Menu Item */
 .menu-item {
   display: flex;
-  align-items: center;
+  align-items: left !important;
+  
   width: 100%;
   padding: 12px 15px;
   transition: background-color 0.3s ease;
@@ -68,18 +92,49 @@
   border-radius: 5px;
 }
 
+.categorymenu-item {
+  width: 100%;
+  text-align: left;
+  display: flex;
+  gap: 5px;
+  height: 60px;
+  align-items: center;
+  padding: 0px 15px 0px 15px;
+  margin-bottom: 10px;
+  background-color: #092C4C;
+  color: white;
+  border-radius: 5px;
+  border: none;
+  transition: all 0.5s ease; /* adds smooth transition */
+  transition-delay: 0.1s;    /* delay before transition starts */
+}
+.category-name
+{
+  color: white m !important;
+}
 /* Active Menu Item */
 .menu-item.active {
   color: white;
 
 }
 
+.categorymenu-item.active {
+border:1px solid #ff9f44 !important;
+  color: #ff9f44 !important;
+}
+.categorymenu-item:hover {
+  color: #ff9f44 !important;
+  box-shadow: 0px 0px 13px 5px rgba(0, 0, 0, 0.51);
+  -webkit-box-shadow: 0px 0px 13px 5px rgba(0, 0, 0, 0.51);
+  -moz-box-shadow: 0px 0px 13px 5px rgba(0, 0, 0, 0.51);
+}
+
 .menu-item:hover {
-  color: #0fa0fb !important;
+  color: #ff9f44 !important;
 }
 
 .menu-item:hover .menu-icon {
-  color: #0fa0fb !important;
+  color: #ff9f44 !important;
 }
 
 /* Icon Styling */
@@ -94,10 +149,10 @@
 
 /* Icon Styling */
 .menu-item.active .menu-icon {
-  color: #0fa0fb !important;
+  color: #ff9f44 !important;
 }
 .menu-item.active {
-  color: #0fa0fb !important;
+  color: #ff9f44 !important;
 }
 
 

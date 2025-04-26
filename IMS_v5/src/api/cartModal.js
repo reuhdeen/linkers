@@ -41,15 +41,15 @@ const CartModal = ({ isOpen, onClose, userId, setOrders }) => {
       if (!token) throw new Error("No token found");
   
       const cartDetails = await fetchQueryData(token, {
-        table: "cart_details INNER JOIN products ON cart_details.product_id = products.product_id LEFT JOIN discounts ON products.product_id = discounts.product_id ",
-        columns: "products.*, cart_details.quantity, products.product_id AS productID, products.name AS productName, discounts.discount_percent, CASE WHEN discounts.product_id IS NULL THEN 'none' WHEN NOW() BETWEEN discounts.start_date AND discounts.end_date THEN 'active' WHEN NOW() > discounts.end_date THEN 'expired' ELSE 'none' END AS discount_status, CASE WHEN NOW() BETWEEN discounts.start_date AND discounts.end_date THEN products.selling_price - (discounts.discount_percent * products.selling_price) ELSE products.selling_price END AS current_price",
+        table: "cart_details INNER JOIN products ON cart_details.product_id = products.product_id LEFT JOIN discounts ON products.product_id = discounts.product_id INNER JOIN retail_products ON products.product_id = retail_products.product_id",
+        columns: "products.*, cart_details.quantity, products.product_id AS productID, products.name AS productName, discounts.discount_percent, CASE WHEN discounts.product_id IS NULL THEN 'none' WHEN NOW() BETWEEN discounts.start_date AND discounts.end_date THEN 'active' WHEN NOW() > discounts.end_date THEN 'expired' ELSE 'none' END AS discount_status, CASE WHEN NOW() BETWEEN discounts.start_date AND discounts.end_date THEN retail_products.retail_price - (discounts.discount_percent * retail_products.retail_price) ELSE retail_products.retail_price END AS current_price",
         where: `cart_id = '${cart_id}'`,
       });
   
       const existingOrders = cartDetails.map((detail) => ({
         id: detail.productID,
         name: decodeBase64(detail.productName),
-        selling_price: detail.selling_price || 0,
+        retail_price: detail.retail_price || 0,
         quantity: detail.quantity,
         discount_percent: detail.discount_percent,
         discount_status: detail.discount_status,

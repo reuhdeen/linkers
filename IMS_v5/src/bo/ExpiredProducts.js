@@ -59,7 +59,7 @@ const ExpiredProducts = () => {
     { name: "Expiration Date", key: "expiration_date" },
     { name: "Unit of Measure", key: "unit_of_measure" },
     { name: "Markup Percentage", key: "markup_percentage" },
-    { name: "Selling Price", key: "selling_price" },
+    { name: "Retail Price", key: "retail_price" },
     { name: "Cost Price", key: "cost_price" },
     { name: "Batch Number", key: "batch_number" },
     { name: "Warehouse Zone", key: "warehouse_zone" },

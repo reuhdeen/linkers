@@ -14,6 +14,7 @@ import {
 import debitCredit from "./debitcredit.png";
 import CartModal from "../api/cartModal"; // Ensure the correct path
 import ReceiptModal from "../api/receiptModal"; // Ensure the correct path
+import CategorySidebarNav from "../components/categorySideBar"; // adjust path if needed
 
 const Sales = () => {
   const [products, setProducts] = useState([]);
@@ -39,6 +40,59 @@ const Sales = () => {
   const [cashEntered, setCashEntered] = useState(false);
   const [cashNumber, setCashNumber] = useState("");
   const [salesID, setSalesID] = useState("");
+  const [barcodeScanEnabled, setBarcodeScanEnabled] = useState(true);
+
+
+
+  useEffect(() => {
+    if (!barcodeScanEnabled) return;
+  
+    let buffer = "";
+    let lastKeyTime = Date.now();
+  
+    const handleKeyPress = (e) => {
+      const currentTime = Date.now();
+      const timeDiff = currentTime - lastKeyTime;
+  
+      if (timeDiff > 100) buffer = "";
+  
+      if (e.key === "Enter") {
+        const scannedCode = buffer.trim().toLowerCase();
+  
+        if (scannedCode) {
+          const matchingProduct = products.find(
+            (product) =>
+              decodeBase64(product.barcode).toLowerCase() === scannedCode
+          );
+  
+          if (matchingProduct) {
+            const existingOrder = orders.find(
+              (order) => order.id === matchingProduct.productID
+            );
+  
+            if (existingOrder) {
+              updateOrderQuantity(existingOrder.id, existingOrder.quantity + 1);
+            } else {
+              addToOrders(matchingProduct);
+            }
+          } else {
+            console.log("No matching product for scanned barcode:", scannedCode);
+          }
+        }
+  
+        buffer = "";
+      } else {
+        buffer += e.key;
+      }
+  
+      lastKeyTime = currentTime;
+    };
+  
+    window.addEventListener("keydown", handleKeyPress);
+    return () => window.removeEventListener("keydown", handleKeyPress);
+  }, [barcodeScanEnabled, products, orders]);
+  
+  
 
   useEffect(() => {
     if (orders.length > 0) {
@@ -202,9 +256,9 @@ const Sales = () => {
 
         const productsData = await fetchQueryData(token, {
           table:
-            "iposal.products INNER JOIN categories ON products.category_id = categories.category_id LEFT JOIN discounts ON products.product_id = discounts.product_id",
+            "iposarv3.products INNER JOIN categories ON products.category_id = categories.category_id LEFT JOIN discounts ON products.product_id = discounts.product_id LEFT JOIN retail_products ON products.product_id = retail_products.product_id",
           columns:
-            "*,products.product_id AS productID, products.name AS productName, categories.category_id AS categoryID, categories.name AS categoryName, discounts.discount_percent, CASE WHEN discounts.product_id IS NULL THEN 'none' WHEN NOW() BETWEEN discounts.start_date AND discounts.end_date THEN 'active' WHEN NOW() > discounts.end_date THEN 'expired' ELSE 'none' END AS discount_status, CASE WHEN NOW() BETWEEN discounts.start_date AND discounts.end_date THEN products.selling_price - (discounts.discount_percent * products.selling_price) ELSE products.selling_price END AS current_price",
+            "*, retail_products.retail_price AS selling_price, products.product_id AS productID, products.name AS productName, categories.category_id AS categoryID, categories.name AS categoryName, discounts.discount_percent, CASE WHEN discounts.product_id IS NULL THEN 'none' WHEN NOW() BETWEEN discounts.start_date AND discounts.end_date THEN 'active' WHEN NOW() > discounts.end_date THEN 'expired' ELSE 'none' END AS discount_status, CASE WHEN NOW() BETWEEN discounts.start_date AND discounts.end_date THEN retail_products.retail_price - (discounts.discount_percent * retail_products.retail_price) ELSE retail_products.retail_price END AS current_price",
         });
 
         setProducts(productsData);
@@ -228,6 +282,18 @@ const Sales = () => {
 
     fetchDataAsync();
   }, []); // This effect will run only once when the component mounts
+  useEffect(() => {
+    if (selectedCategory === "All") {
+      setFilteredProducts(products);
+    } else {
+      const filtered = products.filter(
+        (product) => product.categoryID === selectedCategory
+      );
+      setFilteredProducts(filtered);
+    }
+  }, [selectedCategory, products]);
+
+
 
   // Handle Search Submit
   const handleSearchSubmit = (e) => {
@@ -479,7 +545,7 @@ const Sales = () => {
   const screenWidth = useWindowWidth();
 
   return (
-    <div className="container-fluid">
+    <div className="container-fluid container-fullscreen">
       <div className="row">
         <CartModal
           isOpen={modalOpen}
@@ -496,10 +562,21 @@ const Sales = () => {
           cashNumber={cashNumber}
         />
 
-        {/* Menu Section */}
+        {/* Sidebar for Categories */}
+
+        {/* Main Product Menu Section */}
         <div className="col-md-8 py-3">
+          <CategorySidebarNav
+            categories={categories}
+            selectedCategory={selectedCategory}
+            setSelectedCategory={setSelectedCategory}
+            screenWidth={window.innerWidth}
+          />
+
           <div className="d-flex justify-content-between align-items-center">
             <h2 className="page-title">Choose Products</h2>
+
+
             <form onSubmit={handleSearchSubmit}>
               <input
                 type="text"
@@ -509,89 +586,6 @@ const Sales = () => {
                 onChange={handleSearchQueryChange}
               />
             </form>
-          </div>
-
-          {/* Categories Section */}
-          <div className="mt-3 categories-sec">
-            <nav>
-              <ul
-                className={`nav ${
-                  screenWidth <= 768 ? "categories-container" : ""
-                }`}
-              >
-                {screenWidth <= 768 ? (
-                  // Mobile: Show all categories in a horizontal scroll
-                  categories.map((category) => (
-                    <li className="nav-item" key={category.categoryID}>
-                      <button
-                        className={`nav-link ${
-                          selectedCategory === category.categoryID
-                            ? "active"
-                            : ""
-                        }`}
-                        onClick={() => setSelectedCategory(category.categoryID)}
-                      >
-                        {category.categoryName}
-                      </button>
-                    </li>
-                  ))
-                ) : (
-                  // Desktop: Show top 5 categories and dropdown
-                  <>
-                    {categories.slice(0, 5).map((category) => (
-                      <li className="nav-item" key={category.categoryID}>
-                        <button
-                          className={`nav-link ${
-                            selectedCategory === category.categoryID
-                              ? "active"
-                              : ""
-                          }`}
-                          onClick={() =>
-                            setSelectedCategory(category.categoryID)
-                          }
-                        >
-                          {category.categoryName}
-                        </button>
-                      </li>
-                    ))}
-                    {categories.length > 5 && (
-                      <li className="nav-item dropdown">
-                        <button
-                          className="nav-link dropdown-toggle"
-                          id="categoryDropdown"
-                          data-bs-toggle="dropdown"
-                          aria-expanded="false"
-                        >
-                          More
-                        </button>
-                        <ul
-                          className="dropdown-menu"
-                          aria-labelledby="categoryDropdown"
-                        >
-                          {categories.slice(5).map((category) => (
-                            <li key={category.categoryID}>
-                              <button
-                                className={`dropdown-item ${
-                                  selectedCategory === category.categoryID
-                                    ? "active"
-                                    : ""
-                                }`}
-                                onClick={() =>
-                                  setSelectedCategory(category.categoryID)
-                                }
-                              >
-                                {category.categoryName}
-                              </button>
-                            </li>
-                          ))}
-                        </ul>
-                      </li>
-                    )}
-                  </>
-                )}
-              </ul>
-            </nav>
-            <hr></hr>
           </div>
 
           {/* Display products */}
@@ -647,7 +641,7 @@ const Sales = () => {
         </div>
 
         {/* Order Summary Section */}
-        <div className="col-md-4 py-3">
+        <div className="col-md-4">
           <div className="order-summary p-3">
             <div className="d-flex justify-content-between align-items-center">
               <h5 className="section-title">Order Summary</h5>

@@ -39,8 +39,8 @@
 
 .app-container {
   position: relative;
-  height: 100vh;
-    background-color: #1e202c !important;
+
+  background-color: #1e202c !important;
 }
 
 .login-container {
@@ -55,7 +55,7 @@
   background: white;
   padding: 20px;
   border-radius: 5px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   text-align: center;
 }
 
@@ -71,11 +71,7 @@
   border: 1px solid #ccc;
   border-radius: 5px;
 }
-.container-fluid {
-  background-color: #1e202c !important;
 
-  color: white !important;
-}
 
 .login-form button {
   width: 100%;
@@ -103,9 +99,6 @@
   display: flex;
   height: 100vh;
 }
-
-
-
 
 .content-area {
   flex: 1;
@@ -149,4 +142,109 @@
   color: red;
   margin-bottom: 10px;
   font-size: 14px;
+}
+.btn-secondary {
+  background-color: #062c51 !important;
+  border: none !important;
+  font-size: 10px !important;
+}
+.btn-secondary:hover {
+  background-color: #031b33 !important;
+  border: none !important;
+  box-shadow: 0px 1px 10px 0px rgba(3, 27, 51, 1);
+  -webkit-box-shadow: 0px 1px 10px 0px rgba(3, 27, 51, 1);
+  -moz-box-shadow: 0px 1px 10px 0px rgba(3, 27, 51, 1);
+}
+
+
+
+.edit-icon{
+  background-color: none !important;
+  padding: 2px;
+  color: #ff9f44;
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.5s ease;
+  transition-delay: 0.09s; /* 400ms delay before hover effect kicks in */
+}
+.nav-menu-icon {
+  background-color: #062c51;
+  padding: 10px;
+  color: white;
+  cursor: pointer;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 5px;
+  border: solid #242629 1px;
+  transition: all 0.5s ease;
+  transition-delay: 0.09s; /* 400ms delay before hover effect kicks in */
+}
+.nav-menu-icon:hover {
+  background-color: #3173b6;
+  transform: scale(1.1);
+}
+
+.action-icon {
+  background-color: #062c51;
+  padding: 8px;
+  color: white;
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 5px;
+  border: solid #242629 1px;
+  transition: all 0.5s ease;
+  transition-delay: 0.09s; /* 400ms delay before hover effect kicks in */
+}
+
+.action-icon:hover {
+  background-color: #3173b6;
+  transform: scale(1.1);
+}
+
+/* Fixed height for product management section */
+.product-management-container {
+  display: flex;
+  height: 800px; /* Adjust this height as needed */
+}
+
+.product-columns {
+  max-height: 800px;
+  overflow-y: auto;
+  overflow-x: auto;
+}
+
+/* Make sure the Product Table doesn't affect the layout */
+.product-table-container {
+  overflow-y: auto;
+  overflow-x: auto;
+  height: 100%;
+}
+
+.product-columns::-webkit-scrollbar,
+.product-table-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.product-columns::-webkit-scrollbar-thumb,
+.product-table-container::-webkit-scrollbar-thumb {
+  background-color: #3a3a3a;
+  border-radius: 10px;
+}
+
+.btn-success {
+  background-color: #062c51 !important;
+  border: none !important;
+  font-size: 13px !important;
+  padding: 8px 12px !important;
 }

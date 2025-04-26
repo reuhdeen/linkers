@@ -6,6 +6,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "../css/loading.css";
 import "../css/tables.css";
 import "../css/forms.css";
+import EditModal from "../api/editModal";
 
 import DataTable from "../api/dataTable";
 
@@ -13,6 +14,20 @@ const ProductTypesManagement = () => {
   const [productTypes, setProductTypes] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editData, setEditData] = useState(null);
+  // 🛠️ Open Edit Modal with Selected Data
+  const handleOpenEditModal = (category) => {
+    setEditData(category);
+    setEditModalOpen(true);
+  };
+
+  // 🛠️ Close Edit Modal
+  const handleCloseEditModal = () => {
+    setEditModalOpen(false);
+    setEditData(null);
+  };
 
   const columns = [
     { name: "Edit", key: "edit" },
@@ -119,6 +134,7 @@ const ProductTypesManagement = () => {
               modalOpen={modalOpen}
               title="Product Types Management"
               rows={10}
+              onEdit={handleOpenEditModal} 
             />
           </div>
         </div>
@@ -164,6 +180,20 @@ const ProductTypesManagement = () => {
           </div>
         </div>
       </div>
+      <EditModal
+        isOpen={editModalOpen}
+        onClose={handleCloseEditModal}
+        data={editData}
+        fields={[
+          { key: "name", label: "Category Name", type: "text" },
+          { key: "description", label: "Description", type: "text" },
+        ]}
+        onSubmit={() => window.location.reload()} // Refresh categories after edit
+        apiEndpoint="/update/product_types"
+        primaryKey="product_type_id"
+        title="Edit Product Type"
+      />
+
     </div>
   );
 };

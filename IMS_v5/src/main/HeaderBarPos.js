@@ -1,11 +1,11 @@
 import React from "react";
-import { FaSignOutAlt, FaPrint, FaLaptop } from "react-icons/fa";
+import { FaSignOutAlt, FaPrint, FaDigitalTachograph } from "react-icons/fa";
 import "../css/headerbar.css";
 import FullscreenButton from "../api/fullScreenButton";
 import { Link } from "react-router-dom";
 
 
-const HeaderBar = ({ onLogout }) => {
+const HeaderBarPos = ({ onLogout }) => {
   return (
     <div className="header-bar">
       <img
@@ -14,9 +14,9 @@ const HeaderBar = ({ onLogout }) => {
         alt="logo"
       />
       <div className="header-right">
-      <Link to="/sales" className="btn btn-primary d-flex align-items-center">
-  <FaLaptop className="logout-icon me-2" />
-  Go To POS
+      <Link to="/dashboard" className="btn btn-primary d-flex align-items-center">
+  <FaDigitalTachograph className="logout-icon me-2" />
+  Dashboard
 </Link>
 
 
@@ -39,4 +39,4 @@ const HeaderBar = ({ onLogout }) => {
   );
 };
 
-export default HeaderBar;
+export default HeaderBarPos;

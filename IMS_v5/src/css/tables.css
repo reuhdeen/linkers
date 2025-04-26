@@ -24,7 +24,7 @@ th {
 }
 
 .btn-warning {
-  background-color: #0fa0fb !important;
+  background-color: #ff9f44 !important;
   border: none !important;
 }
 .card {
@@ -40,7 +40,7 @@ th {
 }
 
 .pagination-button {
-  color: #0fa0fb !important;
+  color: #ff9f44 !important;
   height: 30px;
   width: 30px;
 }
@@ -54,7 +54,7 @@ th {
   border: none !important;
 }
 .btn-pagination-active {
-  background-color: #0fa0fb !important;
+  background-color: #ff9f44 !important;
   size: 12px !important;
   height: 32px;
   width: 32px;
@@ -66,7 +66,7 @@ th {
   height: 30px;
   width: 30px;
   border: none !important;
-  color: #0fa0fb !important;
+  color: #ff9f44 !important;
 }
 .btn-pagination:hover {
   background-color: #0fa1fb1f !important;
@@ -91,7 +91,7 @@ outline: none;
 
 
 .edit-button {
-  color: #0fa0fb;
+  color: #fca311;
 }
 
 
@@ -116,3 +116,4 @@ outline: none;
 .sale_summary-category { grid-area: sale_summary-category; }
 
 .sale_summary-type { grid-area: sale_summary-type; }
+

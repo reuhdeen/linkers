@@ -64,7 +64,6 @@ const SidebarNav = ({ onLogout }) => {
 
   return (
     <div className="sidebar">
-      <img src={`/product_images/logo.png`} className="img-table" alt="logo" />
       {menuStructure.map((category, index) => (
         <div key={index} className="menu-category">
           <h3 className="category-title">{category.category}</h3>
