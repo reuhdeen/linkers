@@ -22,6 +22,7 @@ import SalesManagement from "./pos/sales";
 import SaleReport from "./reports/SaleReport";
 import InventoryReport from "./reports/InventoryReport";
 import ExpiredProducts from "./bo/ExpiredProducts";
+import RetailProducts from "./bo/RetailProducts";
 
 import About from "./fe/About";
 import SidebarNav from "./main/SidebarNav";
@@ -129,6 +130,7 @@ function AppContent({
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [screenWidth, setScreenWidth] = useState(window.innerWidth);
   const [isScannerActive, setIsScannerActive] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
 
   // Handle window resize for screenWidth
   useEffect(() => {
@@ -184,7 +186,9 @@ function AppContent({
   onLogout={handleLogout}
   isScannerActive={isScannerActive}
   setIsScannerActive={setIsScannerActive}
+  setModalOpen={setModalOpen}
 />
+
                 <CategorySidebarNav
                   categories={categories}
                   selectedCategory={selectedCategory}
@@ -207,6 +211,7 @@ function AppContent({
                 path="/dashboard"
                 element={<div>Welcome to Dashboard!</div>}
               />
+
               <Route path="/categories" element={<Categories />} />
               <Route path="/suppliers" element={<Suppliers />} />
               <Route path="/product-types" element={<ProductTypes />} />
@@ -225,15 +230,18 @@ function AppContent({
               <Route
                 path="/sales"
                 element={
-                  <SalesManagement
-                    selectedCategory={selectedCategory}
-                    setCategories={setCategories}
-                    isScannerActive={isScannerActive} 
+<SalesManagement
+  selectedCategory={selectedCategory}
+  setCategories={setCategories}
+  isScannerActive={isScannerActive}
+  modalOpen={modalOpen}
+  setModalOpen={setModalOpen}
+/>
 
-                  />
                 }
               />
 
+<Route path="/retail-products" element={<RetailProducts />} />
               <Route path="/products" element={<Products />} />
               <Route path="/add-product" element={<AddProduct />} />
               <Route path="/supplies" element={<Supplies />} />

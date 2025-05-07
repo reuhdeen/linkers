@@ -6,7 +6,6 @@ import { Link } from "react-router-dom";
 import {
 
   FaPlusCircle,
-
   FaFileExcel,
 } from "react-icons/fa";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -85,9 +84,42 @@ const ProductsManagement = () => {
 
       const productsData = await fetchQueryData(token, {
         table:
-          "iposarv3.products INNER JOIN categories on categories.category_id = products.category_id INNER JOIN product_types ON products.product_type_id = product_types.product_type_id INNER JOIN suppliers ON products.supplier_id = suppliers.supplier_id LEFT JOIN product_details ON products.product_id = product_details.product_id",
+        `iposarv3.retail_products
+INNER JOIN 
+    product_variants ON retail_products.product_variant_id = product_variants.product_variant_id
+INNER JOIN 
+    products ON product_variants.product_id = products.product_id
+INNER JOIN 
+    product_types ON products.product_type_id = product_types.product_type_id
+INNER JOIN 
+    categories ON categories.category_id = products.category_id
+INNER JOIN 
+    suppliers ON products.supplier_id = suppliers.supplier_id
+LEFT JOIN 
+    product_details ON products.product_id = product_details.product_id
+LEFT JOIN (
+    SELECT 
+        va.product_variant_id,
+        GROUP_CONCAT(CONCAT(a.attribute_name, ': ', av.value) SEPARATOR ', ') AS attributes
+    FROM 
+        variant_attributes va
+    LEFT JOIN 
+        attribute_values av ON va.attribute_value_id = av.attribute_value_id
+    LEFT JOIN 
+        attributes a ON av.attribute_id = a.attribute_id
+    GROUP BY 
+        va.product_variant_id
+) AS attrs ON product_variants.product_variant_id = attrs.product_variant_id`,
         columns:
-          "products.*, products.product_id AS ProdID, product_details.*, categories.name AS categoryName, product_types.name AS productTypeName, suppliers.name AS supplierName",
+          `    retail_products.*, 
+    products.*, 
+    product_variants.*, 
+    products.product_id AS ProdID, 
+    product_details.*, 
+    categories.name AS categoryName, 
+    product_types.name AS productTypeName, 
+    suppliers.name AS supplierName,
+    attrs.attributes`,
         where: whereClause,
       });
 
@@ -131,10 +163,17 @@ const ProductsManagement = () => {
   const columns = [
     { name: "Img", key: "ProdID" },
     { name: "Barcode", key: "barcode" },
+    { name: "SKU", key: "sku" },
     { name: "Name", key: "name" },
-    { name: "Category", key: "categoryName" },
-    { name: "Product Type", key: "productTypeName" },
-    { name: "Supplier", key: "supplierName" },
+    { name: "Attributes", key: "attributes" },
+    { name: "Base Cost", key: "base_cost" },
+    { name: "Retail Price", key: "retail_price" },
+    { name: "Promo Price", key: "promo_price" },
+    { name: "Margin Price", key: "margin_price" },
+    { name: "VAT", key: "vat_tax" },
+    { name: "Final Price", key: "final_price" },
+    // { name: "Category", key: "categoryName" },
+    // { name: "Product Type", key: "productTypeName" },
     { name: "", key: "edit" },
   ];
   const columnsMap = {
@@ -170,13 +209,13 @@ const ProductsManagement = () => {
 
       <div className="row align-items-center mb-3">
         <div className="col-md-6">
-          <h3>Product Managment</h3>
+          <h3>Retail Products</h3>
           <span className="text-muted">List of Products </span>
         </div>
         <div className="col-md-6 text-end">
           <Link to="/add-product" className="btn btn-md btn-success mx-2">
             <FaPlusCircle size={14} />
-            &nbsp; New Product
+            &nbsp; Add Pricing
           </Link>
 
           <button className="btn btn-md btn-warning">

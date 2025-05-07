@@ -16,7 +16,7 @@ import CartModal from "../api/cartModal"; // Ensure the correct path
 import ReceiptModal from "../api/receiptModal"; // Ensure the correct path
 import CategorySidebarNav from "../components/categorySideBar"; // adjust path if needed
 
-const Sales = () => {
+const Sales = ({ modalOpen, setModalOpen}) => {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
@@ -31,7 +31,7 @@ const Sales = () => {
   const [voucherCode, setVoucherCode] = useState(""); // State for voucher code
   const cashier_id = "12"; // Replace with actual cashier ID
   const [cartCreated, setCartCreated] = useState(false); // Flag to prevent cart creation duplication
-  const [modalOpen, setModalOpen] = useState(false);
+  // const [modalOpen, setModalOpen] = useState(false);
   const [receiptModalOpen, setReceiptModalOpen] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [showCashModal, setShowCashModal] = useState(false);
@@ -645,12 +645,7 @@ const Sales = () => {
           <div className="order-summary p-3">
             <div className="d-flex justify-content-between align-items-center">
               <h5 className="section-title">Order Summary</h5>
-              <button
-                className="btn btn-link p-0 text-muted"
-                onClick={() => setModalOpen(true)}
-              >
-                Unfinished Transactions
-              </button>
+
             </div>
 
             <ul className="list-group list-group-flush">

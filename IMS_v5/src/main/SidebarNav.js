@@ -7,6 +7,7 @@ import {
   FaShoppingCart,
   FaClipboardList,
   FaChartPie,
+  FaDollarSign,
   FaSignOutAlt,
 } from "react-icons/fa";
 import { Link, useLocation } from "react-router-dom";
@@ -29,6 +30,7 @@ const SidebarNav = ({ onLogout }) => {
       category: "Inventory",
       links: [
         { path: "/products", icon: <FaBox />, name: "Products" },
+        { path: "/retail-products", icon: <FaDollarSign />, name: "Retail Products" },
         { path: "/product-types", icon: <FaBox />, name: "Product Types" },
         { path: "/categories", icon: <FaBox />, name: "Categories" },
         { path: "/print-barcode", icon: <FaBarcode />, name: "Print Barcode" },
