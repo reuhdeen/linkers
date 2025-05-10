@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   FaCaretUp,
   FaCaretDown,
@@ -14,11 +15,13 @@ import "../css/tables.css";
 import "../css/forms.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-const ProductTable = ({ columns, data, title, rows, onView,onEdit }) => {
+const ProductTable = ({ columns, data, title, rows, onEdit }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(rows);
+
+  const navigate = useNavigate(); // 👈 NEW
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
@@ -158,19 +161,22 @@ const ProductTable = ({ columns, data, title, rows, onView,onEdit }) => {
                         <FaRegEdit
                           className="action-icon"
                           size={16}
-                            onClick={() => onEdit(item)}
+                          onClick={() => onEdit(item)}
                           style={{ cursor: "pointer" }}
                         />
                         <FaRegEye
                           className="action-icon"
                           size={16}
-                          onClick={() => onView(item)} //  Pass product
+                          onClick={() =>
+                            navigate(`/products/${item.ProdID}`, {
+                              state: { product: item },
+                            })
+                          }
                           style={{ cursor: "pointer" }}
                         />
                         <FaRegTrashAlt
                           className="action-icon"
                           size={16}
-                          //   onClick={() => onEdit(item)}
                           style={{ cursor: "pointer" }}
                         />
                       </div>

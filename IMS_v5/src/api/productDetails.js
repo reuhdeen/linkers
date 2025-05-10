@@ -2,15 +2,7 @@
 
 import React from "react";
 import { decodeBase64 } from "../api/decodeBase64";
-import {
-  FaCaretUp,
-  FaCaretDown,
-  FaChevronLeft,
-  FaChevronRight,
-  FaEdit,
-  FaPlus,
-  FaRegTrashAlt,
-} from "react-icons/fa";
+
 const ProductDetails = ({ product, columnsMap, onEdit,  onInsert}) => {
   if (!product) return null;
 

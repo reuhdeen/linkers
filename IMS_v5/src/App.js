@@ -23,6 +23,8 @@ import SaleReport from "./reports/SaleReport";
 import InventoryReport from "./reports/InventoryReport";
 import ExpiredProducts from "./bo/ExpiredProducts";
 import RetailProducts from "./bo/RetailProducts";
+import ProductDetailsPage from "./components/singleProduct"; // you'll create this
+
 
 import About from "./fe/About";
 import SidebarNav from "./main/SidebarNav";
@@ -183,11 +185,11 @@ function AppContent({
               <>
                 <HeaderBarPos onLogout={handleLogout} />
                 <FooterPos
-  onLogout={handleLogout}
-  isScannerActive={isScannerActive}
-  setIsScannerActive={setIsScannerActive}
-  setModalOpen={setModalOpen}
-/>
+                  onLogout={handleLogout}
+                  isScannerActive={isScannerActive}
+                  setIsScannerActive={setIsScannerActive}
+                  setModalOpen={setModalOpen}
+                />
 
                 <CategorySidebarNav
                   categories={categories}
@@ -199,7 +201,7 @@ function AppContent({
             ) : (
               <>
                 <HeaderBar onLogout={handleLogout} />
-                
+
                 <SidebarNav onLogout={handleLogout} />
               </>
             ))}
@@ -230,19 +232,20 @@ function AppContent({
               <Route
                 path="/sales"
                 element={
-<SalesManagement
-  selectedCategory={selectedCategory}
-  setCategories={setCategories}
-  isScannerActive={isScannerActive}
-  modalOpen={modalOpen}
-  setModalOpen={setModalOpen}
-/>
-
+                  <SalesManagement
+                    selectedCategory={selectedCategory}
+                    setCategories={setCategories}
+                    isScannerActive={isScannerActive}
+                    modalOpen={modalOpen}
+                    setModalOpen={setModalOpen}
+                  />
                 }
               />
 
-<Route path="/retail-products" element={<RetailProducts />} />
+              <Route path="/retail-products" element={<RetailProducts />} />
               <Route path="/products" element={<Products />} />
+              <Route path="/products/:id" element={<ProductDetailsPage />} />
+
               <Route path="/add-product" element={<AddProduct />} />
               <Route path="/supplies" element={<Supplies />} />
               <Route

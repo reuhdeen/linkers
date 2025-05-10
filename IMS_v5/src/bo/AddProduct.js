@@ -89,10 +89,10 @@ const AddProduct = () => {
       barcode: newProduct.barcode.trim(),
       brand_name: newProduct.brand_name.trim(),
       product_type_id: SelectedProductType.id,
-      custom_attributes: JSON.stringify({
-        color: newProduct.color,
-        battery_life: newProduct.battery_life,
-      }), // Example of JSON object for custom attributes
+      // custom_attributes: JSON.stringify({
+      //   color: newProduct.color,
+      //   battery_life: newProduct.battery_life,
+      // }), 
     };
 
     try {
