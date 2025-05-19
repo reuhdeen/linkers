@@ -81,6 +81,8 @@ const ProductTypesManagement = () => {
         name: "",
         description: "",
       });
+                  alert("Added successfuly!");
+
     } catch (error) {
       console.error(
         "There was an error creating the inventory:",

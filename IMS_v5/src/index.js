@@ -6,12 +6,15 @@ import reportWebVitals from './reportWebVitals';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "bootstrap/dist/js/bootstrap.bundle.min";
 import process from "process";
+import { AlertProvider, showGlobalAlert } from './fe/AlertContext';
+window.alert = function (message) {
+  showGlobalAlert(message);
+};
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <AlertProvider>
     <App />
-  </React.StrictMode>
+  </AlertProvider>
 );
 
 // If you want to start measuring performance in your app, pass a function

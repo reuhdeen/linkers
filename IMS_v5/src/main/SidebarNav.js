@@ -34,16 +34,11 @@ const SidebarNav = ({ onLogout }) => {
         { path: "/product-types", icon: <FaBox />, name: "Product Types" },
         { path: "/categories", icon: <FaBox />, name: "Categories" },
         { path: "/print-barcode", icon: <FaBarcode />, name: "Print Barcode" },
-        {
-          path: "/transactions",
-          icon: <FaClipboardList />,
-          name: "Manage Stock",
-        },
         { path: "/supplies", icon: <FaBox />, name: "Supplies" },
         {
-          path: "/supply-transactions",
+          path: "/suppliers",
           icon: <FaBox />,
-          name: "Manage Supply",
+          name: "Suppliers",
         },
         {
           path: "/inventory-report",

@@ -17,15 +17,15 @@ const SuppliersManagement = () => {
     { name: "Edit", key: "edit" },
     { name: "Supplier ID", key: "supplier_id" },
     { name: "Name", key: "name" },
-    { name: "Contact Info", key: "contact_info" },
+    { name: "Contact Info", key: "phone_number" },
     { name: "Address", key: "address" },
-    { name: "Payment Terms", key: "payment_terms" },
+    { name: "Email", key: "email" },
   ];
   const [newSupplier, setNewSupplier] = useState({
     name: "",
-    contact_info: "",
+    phone_number: "",
     address: "",
-    payment_terms: "",
+    email: "",
   });
 
   const handleInputChange = (e) => {
@@ -37,9 +37,9 @@ const SuppliersManagement = () => {
     e.preventDefault();
     const trimmedInventory = {
       name: newSupplier.name.trim(),
-      contact_info: newSupplier.contact_info.trim(),
+      phone_number: newSupplier.phone_number.trim(),
       address: newSupplier.address.trim(),
-      payment_terms: newSupplier.payment_terms.trim(),
+      email: newSupplier.email.trim(),
     };
 
     try {
@@ -60,17 +60,19 @@ const SuppliersManagement = () => {
       );
       console.log("Inventory created successfully", response.data);
       const suppliersData = await fetchQueryData(token, {
-        table: "iposal.suppliers",
+        table: "iposarv3.suppliers",
         columns: "*",
       });
 
       setSuppliers(suppliersData);
       setNewSupplier({
         name: "",
-        contact_info: "",
+        phone_number: "",
         address: "",
-        payment_terms: "",
+        email: "",
       });
+            alert("Added successfuly!");
+
     } catch (error) {
       console.error(
         "There was an error creating the inventory:",
@@ -88,7 +90,7 @@ const SuppliersManagement = () => {
         if (!token) throw new Error("No token found");
 
         const suppliersData = await fetchQueryData(token, {
-          table: "iposal.suppliers",
+          table: "iposarv3.suppliers",
           columns: "*",
         });
 
@@ -150,10 +152,10 @@ const SuppliersManagement = () => {
                 <div className="col-12">
                   <label>Contact Info</label>
                   <input
-                    name="contact_info"
+                    name="phone_number"
                     className="form-control"
                     placeholder="Contact Info"
-                    value={newSupplier.contact_info}
+                    value={newSupplier.phone_number}
                     onChange={handleInputChange}
                     required
                   />
@@ -176,12 +178,12 @@ const SuppliersManagement = () => {
 
               <div className="row mb-3">
                 <div className="col-12">
-                  <label>Payment Terms</label>
+                  <label>Email</label>
                   <input
-                    name="payment_terms"
+                    name="email"
                     className="form-control"
-                    placeholder="Payment Terms"
-                    value={newSupplier.payment_terms}
+                    placeholder="Email"
+                    value={newSupplier.email}
                     onChange={handleInputChange}
                     required
                   />
