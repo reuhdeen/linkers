@@ -624,15 +624,23 @@ const AddProduct = () => {
                   {measurementType === "single" && (
                     <div className="row mb-3">
                       <div className="col-md-6">
-                        <label>Measurement Name</label>
-                        <input
-                          name="unit_of_measure"
-                          className="form-control"
-                          placeholder="e.g., Piece, Box"
-                          value={newProduct.unit_of_measure}
-                          onChange={handleInputChange}
-                          required
-                        />
+<label>Measurement Name</label>
+<select
+  name="unit_of_measure"
+  className="form-control"
+  value={newProduct.unit_of_measure}
+  onChange={handleInputChange}
+  required
+>
+  <option value="" disabled>Select a unit</option>
+  <option value="Piece">Piece</option>
+  <option value="Box">Box</option>
+  <option value="Pack">Pack</option>
+  <option value="Kilogram">Kilogram</option>
+  <option value="Liter">Liter</option>
+  {/* Add more units as needed */}
+</select>
+
                       </div>
 
                     </div>
@@ -643,25 +651,41 @@ const AddProduct = () => {
                       <div className="row mb-3">
                         <div className="col-md-4">
                           <label>Main Unit</label>
-                          <input
-                            name="main_unit"
-                            className="form-control"
-                            placeholder="e.g., Box"
-                            value={newProduct.main_unit}
-                            onChange={handleInputChange}
-                            required
-                          />
+
+                          <select
+  name="main_unit"
+  className="form-control"
+  value={newProduct.main_unit}
+  onChange={handleInputChange}
+  required
+>
+  <option value="" disabled>Select a unit</option>
+  <option value="Piece">Piece</option>
+  <option value="Box">Box</option>
+  <option value="Pack">Pack</option>
+  <option value="Kilogram">Kilogram</option>
+  <option value="Liter">Liter</option>
+  {/* Add more units as needed */}
+</select>
                         </div>
                         <div className="col-md-4">
                           <label>Sub Unit</label>
-                          <input
-                            name="sub_unit"
-                            className="form-control"
-                            placeholder="e.g., Piece"
-                            value={newProduct.sub_unit}
-                            onChange={handleInputChange}
-                            required
-                          />
+
+                                                    <select
+  name="sub_unit"
+  className="form-control"
+  value={newProduct.sub_unit}
+  onChange={handleInputChange}
+  required
+>
+  <option value="" disabled>Select a unit</option>
+  <option value="Piece">Piece</option>
+  <option value="Box">Box</option>
+  <option value="Pack">Pack</option>
+  <option value="Kilogram">Kilogram</option>
+  <option value="Liter">Liter</option>
+  {/* Add more units as needed */}
+</select>
                         </div>
                         <div className="col-md-4">
                           <label>Conversion Factor</label>

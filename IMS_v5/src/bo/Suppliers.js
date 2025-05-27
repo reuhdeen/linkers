@@ -6,13 +6,27 @@ import "../css/loading.css";
 import "../css/tables.css";
 import "../css/forms.css";
 import DataTable from "../api/dataTable";
+import EditModal from "../api/editModal";
 
 const SuppliersManagement = () => {
-    const [suppliers, setSuppliers] = useState([]);
-  
-  const [modalOpen, setModalOpen] = useState(false);
+  const [suppliers, setSuppliers] = useState([]);
+
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editData, setEditData] = useState(null);
+  // 🛠️ Open Edit Modal with Selected Data
   const [loading, setLoading] = useState(true);
 
+  // 🛠️ Open Edit Modal with Selected Data
+  const handleOpenEditModal = (suppliers) => {
+    setEditData(suppliers);
+    setEditModalOpen(true);
+  };
+
+  // 🛠️ Close Edit Modal
+  const handleCloseEditModal = () => {
+    setEditModalOpen(false);
+    setEditData(null);
+  };
   const columns = [
     { name: "Edit", key: "edit" },
     { name: "Supplier ID", key: "supplier_id" },
@@ -71,8 +85,7 @@ const SuppliersManagement = () => {
         address: "",
         email: "",
       });
-            alert("Added successfuly!");
-
+      alert("Added successfuly!");
     } catch (error) {
       console.error(
         "There was an error creating the inventory:",
@@ -122,7 +135,7 @@ const SuppliersManagement = () => {
             <DataTable
               columns={columns}
               data={suppliers}
-              modalOpen={modalOpen}
+              onEdit={handleOpenEditModal}
               title="Suppliers Management"
               rows={10}
             />
@@ -133,7 +146,6 @@ const SuppliersManagement = () => {
           <div className="card p-3 h-100">
             <h4>Add New Supplier</h4>
             <form onSubmit={handleFormSubmit} className="container">
-
               <div className="row mb-3">
                 <div className="col-12">
                   <label>Supplier Name</label>
@@ -190,7 +202,6 @@ const SuppliersManagement = () => {
                 </div>
               </div>
 
-
               <button type="submit" className="btn btn-primary">
                 Add New Supplier
               </button>
@@ -198,6 +209,21 @@ const SuppliersManagement = () => {
           </div>
         </div>
       </div>
+      <EditModal
+        isOpen={editModalOpen}
+        onClose={handleCloseEditModal}
+        data={editData}
+        fields={[
+          { key: "name", label: "Supplier Name", type: "text" },
+          { key: "phone_number", label: "Contact Info", type: "text" },
+          { key: "address", label: "Address", type: "text" },
+          { key: "email", label: "Email", type: "text" },
+        ]}
+        onSubmit={() => window.location.reload()} // Refresh categories after edit
+        apiEndpoint="/update/suppliers"
+        primaryKey="supplier_id"
+        title="Edit Supplier"
+      />
     </div>
   );
 };
