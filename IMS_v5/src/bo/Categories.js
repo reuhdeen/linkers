@@ -68,7 +68,7 @@ const CategoriesManagement = () => {
       );
       console.log("Inventory created successfully", response.data);
       const categoriesData = await fetchQueryData(token, {
-        table: "iposarv3.categories",
+        table: "iposarv3.categories order by category_id desc",
         columns: "*",
       });
 
@@ -96,7 +96,7 @@ const CategoriesManagement = () => {
         if (!token) throw new Error("No token found");
 
         const categoriesData = await fetchQueryData(token, {
-          table: "iposarv3.categories",
+        table: "iposarv3.categories order by category_id desc",
           columns: "*",
         });
 

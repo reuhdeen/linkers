@@ -14,6 +14,7 @@ import PurchaseDetails from "./bo/PurchaseDetails";
 import SaleSummary from "./bo/SaleSummary";
 import Products from "./bo/Products";
 import AddProduct from "./bo/AddProduct";
+import AddRetailProduct from "./bo/AddRetail";
 import Supplies from "./bo/Supplies";
 import SupplyTransactions from "./bo/SupplyTransactions";
 import PrintBarcode from "./bo/PrintBarcode";
@@ -246,6 +247,7 @@ function AppContent({
               <Route path="/products" element={<Products />} />
               <Route path="/products/:id" element={<ProductDetailsPage />} />
 
+              <Route path="/add-retail" element={<AddRetailProduct />} />
               <Route path="/add-product" element={<AddProduct />} />
               <Route path="/supplies" element={<Supplies />} />
               <Route

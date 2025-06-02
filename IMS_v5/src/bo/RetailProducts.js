@@ -213,7 +213,7 @@ LEFT JOIN (
           <span className="text-muted">List of Products </span>
         </div>
         <div className="col-md-6 text-end">
-          <Link to="/add-product" className="btn btn-md btn-success mx-2">
+          <Link to="/add-retail" className="btn btn-md btn-success mx-2">
             <FaPlusCircle size={14} />
             &nbsp; Add Pricing
           </Link>

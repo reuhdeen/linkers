@@ -22,7 +22,6 @@ const AddProduct = () => {
   const [SelectedSupplier, setSelectedSupplier] = useState({});
   const [measurementType, setMeasurementType] = useState("single");
 
-  
   const [openSections, setOpenSections] = useState({
     productInfo: true,
     specifications: true,
@@ -73,7 +72,6 @@ const AddProduct = () => {
     conversion_factor: "",
     quantity_in_stock_main_unit: "",
     quantity_in_stock_sub_unit: "",
-
   });
 
   const insertProduct = async () => {
@@ -92,7 +90,7 @@ const AddProduct = () => {
       // custom_attributes: JSON.stringify({
       //   color: newProduct.color,
       //   battery_life: newProduct.battery_life,
-      // }), 
+      // }),
     };
 
     try {
@@ -134,7 +132,6 @@ const AddProduct = () => {
       tax_class: "taxable", // You can adjust based on your requirements
       status: "active", // You can adjust based on your requirements
       media_url: newProduct.media_url.trim(),
-
     };
 
     try {
@@ -162,9 +159,9 @@ const AddProduct = () => {
     if (!token) {
       throw new Error("No token found");
     }
-  
+
     const productUnits = [];
-  
+
     if (measurementType === "single") {
       // Single unit entry
       productUnits.push({
@@ -181,7 +178,7 @@ const AddProduct = () => {
         conversion_factor: 1,
         barcode: newProduct.barcode?.trim() || "", // Using same barcode or could make it dynamic
       });
-  
+
       // Main unit entry
       productUnits.push({
         product_id: productId,
@@ -190,10 +187,10 @@ const AddProduct = () => {
         barcode: "", // Leave empty or add another barcode field if needed
       });
     }
-  
+
     try {
       const insertedIds = [];
-  
+
       for (const unit of productUnits) {
         const response = await axios.post(
           `${process.env.REACT_APP_API_URL}/insert/product_units`,
@@ -208,7 +205,7 @@ const AddProduct = () => {
         console.log("Inserted unit:", response.data);
         insertedIds.push(response.data.product_unit_id);
       }
-  
+
       return insertedIds;
     } catch (error) {
       console.error(
@@ -218,7 +215,7 @@ const AddProduct = () => {
       throw new Error("Failed to insert product units");
     }
   };
-  
+
   const generateBarcode = () => {
     const timestamp = Date.now();
     setNewProduct({ ...newProduct, barcode: `YNG${timestamp}` });
@@ -278,7 +275,6 @@ const AddProduct = () => {
         conversion_factor: "",
         quantity_in_stock_main_unit: "",
         quantity_in_stock_sub_unit: "",
-
       });
 
       alert("Product created successfully!");
@@ -293,21 +289,20 @@ const AddProduct = () => {
       <div className="row">
         <div className="col-md-12">
           <form onSubmit={handleFormSubmit}>
-
-
-      <div className="row align-items-center mb-3">
-        <div className="col-md-6">
-        <h3>Create Product</h3>
-        <span className="text-muted">Add a new product to the list</span>
-        </div>
-        <div className="col-md-6 text-end">
-          <Link to="/products" className="btn btn-md btn-warning">
-            <FaArrowLeft size={14} />
-            &nbsp; Back to Products
-          </Link>
-
-        </div>
-      </div>
+            <div className="row align-items-center mb-3">
+              <div className="col-md-6">
+                <h3>Create Product</h3>
+                <span className="text-muted">
+                  Add a new product to the list
+                </span>
+              </div>
+              <div className="col-md-6 text-end">
+                <Link to="/products" className="btn btn-md btn-warning">
+                  <FaArrowLeft size={14} />
+                  &nbsp; Back to Products
+                </Link>
+              </div>
+            </div>
             {/* Product Information */}
             <div className="card mt-3">
               <div
@@ -367,8 +362,7 @@ const AddProduct = () => {
                         }
                         idField="category_id"
                         nameField="name"
-                        showAllOption={false}  // Hide "All Categories" option
-
+                        showAllOption={false} // Hide "All Categories" option
                         required
                       />
                     </div>
@@ -383,8 +377,7 @@ const AddProduct = () => {
                         }
                         idField="product_type_id"
                         nameField="name"
-                        showAllOption={false}  // Hide "All Categories" option
-
+                        showAllOption={false} // Hide "All Categories" option
                         required
                       />
                     </div>
@@ -401,20 +394,48 @@ const AddProduct = () => {
                         }
                         idField="supplier_id"
                         nameField="name"
-                        showAllOption={false}  // Hide "All Categories" option
-
+                        showAllOption={false} // Hide "All Categories" option
                         required
                       />
                     </div>
                     <div className="col-md-6">
-                      <label>Image URL</label>
+                      <label>Upload Image</label>
                       <input
-                        name="media_url"
+                        type="file"
+                        accept="image/*"
                         className="form-control"
-                        placeholder="Image URL"
-                        value={newProduct.media_url}
-                        onChange={handleInputChange}
-                        required
+                        onChange={async (e) => {
+                          const file = e.target.files[0];
+                          if (!file) return;
+
+                          const formData = new FormData();
+                          formData.append("image", file);
+
+                          try {
+                            const token = localStorage.getItem("accessToken");
+                            const res = await axios.post(
+                              `${process.env.REACT_APP_API_URL}/upload/image`, // 👈 your upload endpoint
+                              formData,
+                              {
+                                headers: {
+                                  Authorization: `Bearer ${token}`,
+                                  "Content-Type": "multipart/form-data",
+                                },
+                              }
+                            );
+
+                            // Assuming response returns something like { filename: "abc.jpg" }
+                            const uploadedFilename = res.data.filename;
+
+                            setNewProduct((prev) => ({
+                              ...prev,
+                              media_url: uploadedFilename, // 👈 just the filename
+                            }));
+                          } catch (err) {
+                            console.error("Image upload failed:", err);
+                            alert("Image upload failed. Please try again.");
+                          }
+                        }}
                       />
                     </div>
                   </div>
@@ -624,25 +645,25 @@ const AddProduct = () => {
                   {measurementType === "single" && (
                     <div className="row mb-3">
                       <div className="col-md-6">
-<label>Measurement Name</label>
-<select
-  name="unit_of_measure"
-  className="form-control"
-  value={newProduct.unit_of_measure}
-  onChange={handleInputChange}
-  required
->
-  <option value="" disabled>Select a unit</option>
-  <option value="Piece">Piece</option>
-  <option value="Box">Box</option>
-  <option value="Pack">Pack</option>
-  <option value="Kilogram">Kilogram</option>
-  <option value="Liter">Liter</option>
-  {/* Add more units as needed */}
-</select>
-
+                        <label>Measurement Name</label>
+                        <select
+                          name="unit_of_measure"
+                          className="form-control"
+                          value={newProduct.unit_of_measure}
+                          onChange={handleInputChange}
+                          required
+                        >
+                          <option value="" disabled>
+                            Select a unit
+                          </option>
+                          <option value="Piece">Piece</option>
+                          <option value="Box">Box</option>
+                          <option value="Pack">Pack</option>
+                          <option value="Kilogram">Kilogram</option>
+                          <option value="Liter">Liter</option>
+                          {/* Add more units as needed */}
+                        </select>
                       </div>
-
                     </div>
                   )}
 
@@ -653,39 +674,43 @@ const AddProduct = () => {
                           <label>Main Unit</label>
 
                           <select
-  name="main_unit"
-  className="form-control"
-  value={newProduct.main_unit}
-  onChange={handleInputChange}
-  required
->
-  <option value="" disabled>Select a unit</option>
-  <option value="Piece">Piece</option>
-  <option value="Box">Box</option>
-  <option value="Pack">Pack</option>
-  <option value="Kilogram">Kilogram</option>
-  <option value="Liter">Liter</option>
-  {/* Add more units as needed */}
-</select>
+                            name="main_unit"
+                            className="form-control"
+                            value={newProduct.main_unit}
+                            onChange={handleInputChange}
+                            required
+                          >
+                            <option value="" disabled>
+                              Select a unit
+                            </option>
+                            <option value="Piece">Piece</option>
+                            <option value="Box">Box</option>
+                            <option value="Pack">Pack</option>
+                            <option value="Kilogram">Kilogram</option>
+                            <option value="Liter">Liter</option>
+                            {/* Add more units as needed */}
+                          </select>
                         </div>
                         <div className="col-md-4">
                           <label>Sub Unit</label>
 
-                                                    <select
-  name="sub_unit"
-  className="form-control"
-  value={newProduct.sub_unit}
-  onChange={handleInputChange}
-  required
->
-  <option value="" disabled>Select a unit</option>
-  <option value="Piece">Piece</option>
-  <option value="Box">Box</option>
-  <option value="Pack">Pack</option>
-  <option value="Kilogram">Kilogram</option>
-  <option value="Liter">Liter</option>
-  {/* Add more units as needed */}
-</select>
+                          <select
+                            name="sub_unit"
+                            className="form-control"
+                            value={newProduct.sub_unit}
+                            onChange={handleInputChange}
+                            required
+                          >
+                            <option value="" disabled>
+                              Select a unit
+                            </option>
+                            <option value="Piece">Piece</option>
+                            <option value="Box">Box</option>
+                            <option value="Pack">Pack</option>
+                            <option value="Kilogram">Kilogram</option>
+                            <option value="Liter">Liter</option>
+                            {/* Add more units as needed */}
+                          </select>
                         </div>
                         <div className="col-md-4">
                           <label>Conversion Factor</label>

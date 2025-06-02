@@ -72,7 +72,7 @@ const ProductTypesManagement = () => {
       console.log("Inventory created successfully", response.data);
       const productTypesData = await fetchQueryData(token, {
         table:
-          "iposarv3.product_types",
+          "iposarv3.product_types order by product_type_id desc",
         columns: "*",
       });
 
@@ -101,7 +101,7 @@ const ProductTypesManagement = () => {
 
         const productTypesData = await fetchQueryData(token, {
           table:
-            "iposarv3.product_types",
+            "iposarv3.product_types order by product_type_id desc",
           columns: "*",
         });
 

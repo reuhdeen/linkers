@@ -54,7 +54,7 @@ const ProductsManagement = () => {
 
       const productsData = await fetchQueryData(token, {
         table:
-          "iposarv3.products INNER JOIN categories on categories.category_id = products.category_id INNER JOIN product_types ON products.product_type_id = product_types.product_type_id INNER JOIN suppliers ON products.supplier_id = suppliers.supplier_id LEFT JOIN product_details ON products.product_id = product_details.product_id",
+          "iposarv3.products INNER JOIN categories on categories.category_id = products.category_id INNER JOIN product_types ON products.product_type_id = product_types.product_type_id INNER JOIN suppliers ON products.supplier_id = suppliers.supplier_id LEFT JOIN product_details ON products.product_id = product_details.product_id order by products.product_id desc",
         columns:
           "products.*, products.product_id AS ProdID, product_details.*, categories.name AS categoryName, product_types.name AS productTypeName, suppliers.name AS supplierName",
         where: whereClause,

@@ -74,7 +74,7 @@ const SuppliersManagement = () => {
       );
       console.log("Inventory created successfully", response.data);
       const suppliersData = await fetchQueryData(token, {
-        table: "iposarv3.suppliers",
+        table: "iposarv3.suppliers order by supplier_id desc",
         columns: "*",
       });
 
@@ -103,7 +103,7 @@ const SuppliersManagement = () => {
         if (!token) throw new Error("No token found");
 
         const suppliersData = await fetchQueryData(token, {
-          table: "iposarv3.suppliers",
+          table: "iposarv3.suppliers order by supplier_id desc",
           columns: "*",
         });
 
