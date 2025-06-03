@@ -402,6 +402,23 @@ const AddProduct = () => {
                       <label>Upload Image</label>
                       <input
                         type="file"
+                        className="form-control"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files[0];
+                          if (!file) return;
+
+                          // Just record the filename
+                          setNewProduct((prev) => ({
+                            ...prev,
+                            media_url: file.name,
+                          }));
+                        }}
+                      />
+
+                      {/* <label>Upload Image</label>
+                      <input
+                        type="file"
                         accept="image/*"
                         className="form-control"
                         onChange={async (e) => {
@@ -436,7 +453,7 @@ const AddProduct = () => {
                             alert("Image upload failed. Please try again.");
                           }
                         }}
-                      />
+                      /> */}
                     </div>
                   </div>
                 </div>
