@@ -15,12 +15,13 @@ import "../css/tables.css";
 import "../css/forms.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-const ProductTable = ({ columns, data, title, rows, onEdit }) => {
+const ProductTable = ({ columns, data, title, rows, onEdit, onDelete  }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(rows);
-
+const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [productToDelete, setProductToDelete] = useState(null);
   const navigate = useNavigate(); // 👈 NEW
 
   const handleSearchChange = (e) => {
@@ -68,6 +69,17 @@ const ProductTable = ({ columns, data, title, rows, onEdit }) => {
     currentPage * rowsPerPage
   );
 
+  const handleDeleteClick = (product) => {  
+    setProductToDelete(product);
+    setShowDeleteModal(true);
+  };
+  const confirmDelete = async () => {
+    if (productToDelete) {
+      await onDelete(productToDelete.ProdID); // Call the delete function passed as a prop
+      setShowDeleteModal(false);
+      setProductToDelete(null);
+    }
+  };
   return (
     <div>
       <div className="row align-items-center mb-3">
@@ -177,6 +189,8 @@ const ProductTable = ({ columns, data, title, rows, onEdit }) => {
                         <FaRegTrashAlt
                           className="action-icon"
                           size={16}
+                                                    onClick={() => handleDeleteClick(item)}
+
                           style={{ cursor: "pointer" }}
                         />
                       </div>
@@ -256,6 +270,19 @@ const ProductTable = ({ columns, data, title, rows, onEdit }) => {
           />
         </div>
       </div>
+        {showDeleteModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <button className="close-button" onClick={() => setShowDeleteModal(false)}>
+              &times;
+            </button>
+            <h3>Confirm Delete</h3>
+            <p>Are you sure you want to delete the product "{productToDelete && decodeBase64(productToDelete.name)}"? This action cannot be undone.</p>
+            <button className="btn btn-danger" onClick={confirmDelete}>Delete</button>
+            <button className="btn btn-secondary" onClick={() => setShowDeleteModal(false)}>Cancel</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

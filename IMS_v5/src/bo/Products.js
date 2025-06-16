@@ -2,20 +2,15 @@ import React, { useState, useEffect } from "react";
 import { CustomDropdown } from "../api/CustomDropdown";
 import { fetchQueryData, fetchData } from "../api/fetchData";
 import { Link } from "react-router-dom";
+import axios from "axios";
 
-import {
-
-  FaPlusCircle,
-
-  FaFileExcel,
-} from "react-icons/fa";
+import { FaPlusCircle, FaFileExcel } from "react-icons/fa";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../css/loading.css";
 import "../css/tables.css";
 import "../css/forms.css";
 import ProductTable from "../api/productTable";
 import EditModal from "../api/editModal";
-
 
 const ProductsManagement = () => {
   const [products, setProducts] = useState([]);
@@ -30,12 +25,14 @@ const ProductsManagement = () => {
     setEditData(category);
     setEditModalOpen(true);
   };
+  useEffect(() => {
+    fetchProducts(SelectedProductCategory.id);
+  }, [SelectedProductCategory]);
   // 🛠️ Close Edit Modal
   const handleCloseEditModal = () => {
     setEditModalOpen(false);
     setEditData(null);
   };
-
 
   const handleViewProduct = (product) => {
     setSelectedProduct(product);
@@ -68,8 +65,32 @@ const ProductsManagement = () => {
       setLoading(false);
     }
   };
+  const handleDeleteProduct = async (productId) => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      if (!token) throw new Error("No token found");
 
+      const deletedata = {
+        data: { product_id: productId },
+      };
 
+      await axios.delete(
+        `${process.env.REACT_APP_API_URL}/delete/products`,
+        deletedata,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      // Refresh the product list after deletion
+      fetchProducts(SelectedProductCategory.id);
+      alert("Product deleted successfully!");
+    } catch (error) {
+      console.error("Error deleting product:", error);
+      alert(`Error: ${error.message}`);
+    }
+  };
 
   const handleCategoryChange = (category) => {
     setSelectedProductCategory(category);
@@ -137,11 +158,10 @@ const ProductsManagement = () => {
               rows={10}
               onView={handleViewProduct}
               onEdit={handleOpenEditModal}
+              onDelete={handleDeleteProduct} // Pass the delete function
             />
           </div>
         </div>
-
-
       </div>
 
       <EditModal
@@ -160,8 +180,6 @@ const ProductsManagement = () => {
         primaryKey="product_id"
         title="Edit Product"
       />
-
-
     </div>
   );
 };
