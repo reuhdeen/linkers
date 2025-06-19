@@ -400,7 +400,7 @@ const AddProduct = () => {
                     </div>
                     <div className="col-md-6">
                       <label>Upload Image</label>
-                      <input
+                      {/* <input
                         type="file"
                         className="form-control"
                         accept="image/*"
@@ -414,9 +414,9 @@ const AddProduct = () => {
                             media_url: file.name,
                           }));
                         }}
-                      />
+                      /> */}
 
-                      {/* <label>Upload Image</label>
+                      <label>Upload Image</label>
                       <input
                         type="file"
                         accept="image/*"
@@ -431,7 +431,7 @@ const AddProduct = () => {
                           try {
                             const token = localStorage.getItem("accessToken");
                             const res = await axios.post(
-                              `${process.env.REACT_APP_API_URL}/upload/image`, // 👈 your upload endpoint
+                              `${process.env.REACT_APP_API_URL}/api/image/upload`, // 👈 your upload endpoint
                               formData,
                               {
                                 headers: {
@@ -453,7 +453,7 @@ const AddProduct = () => {
                             alert("Image upload failed. Please try again.");
                           }
                         }}
-                      /> */}
+                      />
                     </div>
                   </div>
                 </div>

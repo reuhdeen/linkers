@@ -15,6 +15,7 @@ import debitCredit from "./debitcredit.png";
 import CartModal from "../api/cartModal"; // Ensure the correct path
 import ReceiptModal from "../api/receiptModal"; // Ensure the correct path
 import CategorySidebarNav from "../components/categorySideBar"; // adjust path if needed
+import NumberKeyboard from '../components/NumberKeyboard'; // Import the NumberKeyboard component
 
 const Sales = ({ modalOpen, setModalOpen}) => {
   const [products, setProducts] = useState([]);
@@ -41,8 +42,37 @@ const Sales = ({ modalOpen, setModalOpen}) => {
   const [cashNumber, setCashNumber] = useState("");
   const [salesID, setSalesID] = useState("");
   const [barcodeScanEnabled, setBarcodeScanEnabled] = useState(true);
+  const [activeInput, setActiveInput] = useState(""); // Track the active input field
 
 
+  const handleKeyPress = (value) => {
+    if (value === 'C') {
+      setCashNumber(''); // Clear the cash number
+      setCardNumber(''); // Clear the card number
+      setSearchQuery(''); // Clear the search query
+    } else if (value === 'Enter') {
+      // Handle the submit logic for cash or card
+      if (paymentMethod === 'Cash') {
+        handleCashSubmit();
+      } else if (paymentMethod === 'Credit/Debit Card') {
+        handleCardSubmit();
+      }
+    } else {
+      // Append the number to the current input based on active input
+      if (activeInput === 'cash') {
+        setCashNumber((prev) => prev + value);
+      } else if (activeInput === 'card') {
+        setCardNumber((prev) => prev + value);
+      } else if (activeInput === 'search') {
+        setSearchQuery((prev) => prev + value);
+      } else if (activeInput === 'quantity') {
+        // Handle quantity input if needed
+      }
+    }
+  };
+  const handleInputFocus = (field) => {
+    setActiveInput(field);
+  };
 
   useEffect(() => {
     if (!barcodeScanEnabled) return;
@@ -584,6 +614,8 @@ const Sales = ({ modalOpen, setModalOpen}) => {
                 placeholder="Enter Product..."
                 value={searchQuery}
                 onChange={handleSearchQueryChange}
+                                onFocus={() => handleInputFocus('search')} // Set active input to search
+
               />
             </form>
           </div>
@@ -700,6 +732,8 @@ const Sales = ({ modalOpen, setModalOpen}) => {
                                 parseInt(e.target.value, 10) || 1
                               )
                             }
+                                                        onFocus={() => handleInputFocus('quantity')} // Set active input to quantity
+
                           />
                         </div>
                       </div>
@@ -1058,9 +1092,14 @@ const Sales = ({ modalOpen, setModalOpen}) => {
                 </button>
               </div>
             )}
+                      <div className="number-keyboard-container">
+        <NumberKeyboard onKeyPress={handleKeyPress} />
+      </div>
           </div>
         </div>
       </div>
+
+
     </div>
   );
 };
