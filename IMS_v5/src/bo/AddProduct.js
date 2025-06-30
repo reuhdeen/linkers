@@ -26,8 +26,8 @@ const AddProduct = () => {
     productInfo: true,
     specifications: true,
     stockInfo: true,
-    pricingInfo: true,
-    otherInfo: true,
+    pricingInfo: true, // This section isn't in your provided code, but good to keep if you plan to add it
+    otherInfo: true, // This section isn't in your provided code, but good to keep if you plan to add it
   });
 
   const toggleSection = (section) => {
@@ -44,7 +44,8 @@ const AddProduct = () => {
     category: "",
     subcategory: "",
     product_code: "",
-    image: null,
+    image: null, // Keep this as null or File object if you want to display a preview
+    media_url: "", // New state to store the uploaded image URL from the API response
 
     // Specifications
     brand_name: "",
@@ -87,10 +88,8 @@ const AddProduct = () => {
       barcode: newProduct.barcode.trim(),
       brand_name: newProduct.brand_name.trim(),
       product_type_id: SelectedProductType.id,
-      // custom_attributes: JSON.stringify({
-      //   color: newProduct.color,
-      //   battery_life: newProduct.battery_life,
-      // }),
+      // Pass the uploaded image URL
+ // Use the new media_url state for the image path
     };
 
     try {
@@ -114,6 +113,7 @@ const AddProduct = () => {
       throw new Error("Failed to insert product");
     }
   };
+
   const insertProductDetails = async (productId) => {
     const token = localStorage.getItem("accessToken");
     if (!token) {
@@ -127,12 +127,10 @@ const AddProduct = () => {
       specifications: newProduct.specifications.trim(),
       warranty_period: parseInt(newProduct.warranty_period),
       serial_number: newProduct.serial_number.trim(),
-
       batch_number: newProduct.batch_number.trim(),
       tax_class: "taxable", // You can adjust based on your requirements
       status: "active", // You can adjust based on your requirements
-      media_url: newProduct.media_url.trim(),
-    };
+      media_url: newProduct.media_url,     };
 
     try {
       const response = await axios.post(
@@ -154,6 +152,7 @@ const AddProduct = () => {
       throw new Error("Failed to insert product details");
     }
   };
+
   const insertProductUnit = async (productId) => {
     const token = localStorage.getItem("accessToken");
     if (!token) {
@@ -247,7 +246,8 @@ const AddProduct = () => {
         category: "",
         subcategory: "",
         product_code: "",
-        image: null, // or ""
+        image: null,
+        media_url: "", // Reset image URL as well
 
         // Specifications
         brand_name: "",
@@ -292,9 +292,7 @@ const AddProduct = () => {
             <div className="row align-items-center mb-3">
               <div className="col-md-6">
                 <h3>Create Product</h3>
-                <span className="text-muted">
-                  Add a new product to the list
-                </span>
+                <span className="text-muted">Add a new product to the list</span>
               </div>
               <div className="col-md-6 text-end">
                 <Link to="/products" className="btn btn-md btn-warning">
@@ -339,7 +337,7 @@ const AddProduct = () => {
                   <div className="row mb-3">
                     <div className="col-12">
                       <label>Description</label>{" "}
-                      <span class="text-danger">*</span>
+                      <span className="text-danger">*</span>
                       <textarea
                         name="description"
                         className="form-control"
@@ -362,7 +360,7 @@ const AddProduct = () => {
                         }
                         idField="category_id"
                         nameField="name"
-                        showAllOption={false} // Hide "All Categories" option
+                        showAllOption={false}
                         required
                       />
                     </div>
@@ -377,7 +375,7 @@ const AddProduct = () => {
                         }
                         idField="product_type_id"
                         nameField="name"
-                        showAllOption={false} // Hide "All Categories" option
+                        showAllOption={false}
                         required
                       />
                     </div>
@@ -394,28 +392,11 @@ const AddProduct = () => {
                         }
                         idField="supplier_id"
                         nameField="name"
-                        showAllOption={false} // Hide "All Categories" option
+                        showAllOption={false}
                         required
                       />
                     </div>
                     <div className="col-md-6">
-                      <label>Upload Image</label>
-                      {/* <input
-                        type="file"
-                        className="form-control"
-                        accept="image/*"
-                        onChange={(e) => {
-                          const file = e.target.files[0];
-                          if (!file) return;
-
-                          // Just record the filename
-                          setNewProduct((prev) => ({
-                            ...prev,
-                            media_url: file.name,
-                          }));
-                        }}
-                      /> */}
-
                       <label>Upload Image</label>
                       <input
                         type="file"
@@ -426,34 +407,53 @@ const AddProduct = () => {
                           if (!file) return;
 
                           const formData = new FormData();
-                          formData.append("image", file);
+                          formData.append("image", file); // Key should be 'image' as per your curl command
 
                           try {
                             const token = localStorage.getItem("accessToken");
                             const res = await axios.post(
-                              `${process.env.REACT_APP_API_URL}/api/image/upload`, // 👈 your upload endpoint
+                              `${process.env.REACT_APP_API_URL}/api/image/upload`, // Your upload endpoint
                               formData,
                               {
                                 headers: {
                                   Authorization: `Bearer ${token}`,
-                                  "Content-Type": "multipart/form-data",
+                                  "Content-Type": "multipart/form-data", // Crucial for file uploads
                                 },
                               }
                             );
 
-                            // Assuming response returns something like { filename: "abc.jpg" }
-                            const uploadedFilename = res.data.filename;
+                            // Assuming response returns something like { "message": "...", "image_url": "..." }
+                            const uploadedImageUrl = res.data.image_url; // Extract the full URL
 
                             setNewProduct((prev) => ({
                               ...prev,
-                              media_url: uploadedFilename, // 👈 just the filename
+                              media_url: uploadedImageUrl, // Store the full image URL
                             }));
+                            alert("Image uploaded successfully!"); // Provide user feedback
                           } catch (err) {
-                            console.error("Image upload failed:", err);
+                            console.error(
+                              "Image upload failed:",
+                              err.response ? err.response.data : err.message
+                            );
                             alert("Image upload failed. Please try again.");
+                            // Optionally, reset the file input or media_url on failure
+                            setNewProduct((prev) => ({
+                              ...prev,
+                              media_url: "",
+                            }));
                           }
                         }}
                       />
+                       {newProduct.media_url && (
+                        <div className="mt-2">
+                          <small className="text-success">
+                            Image uploaded:{" "}
+                            <a href={newProduct.media_url} target="_blank" rel="noopener noreferrer">
+                              {newProduct.media_url.split('/').pop()}
+                            </a>
+                          </small>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -556,7 +556,7 @@ const AddProduct = () => {
                   <FaClipboardList className="edit-button" /> Stocks
                 </h4>
                 <span>
-                  {openSections.productInfo ? (
+                  {openSections.stockInfo ? (
                     <FaChevronUp />
                   ) : (
                     <FaChevronDown />

@@ -15,12 +15,12 @@ import "../css/tables.css";
 import "../css/forms.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-const ProductTable = ({ columns, data, title, rows, onEdit, onDelete  }) => {
+const ProductTable = ({ columns, data, title, rows, onEdit, onDelete }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(rows);
-const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [productToDelete, setProductToDelete] = useState(null);
   const navigate = useNavigate(); // 👈 NEW
 
@@ -69,7 +69,7 @@ const [showDeleteModal, setShowDeleteModal] = useState(false);
     currentPage * rowsPerPage
   );
 
-  const handleDeleteClick = (product) => {  
+  const handleDeleteClick = (product) => {
     setProductToDelete(product);
     setShowDeleteModal(true);
   };
@@ -107,12 +107,12 @@ const [showDeleteModal, setShowDeleteModal] = useState(false);
                   key={col.key}
                   onClick={() =>
                     col.key !== "edit" &&
-                    col.key !== "ProdID" &&
+                    col.key !== "media_url" && // Changed ProdID to media_url
                     handleSort(col.key)
                   }
                   style={{
                     cursor:
-                      col.key !== "edit" && col.key !== "ProdID"
+                      col.key !== "edit" && col.key !== "media_url" // Changed ProdID to media_url
                         ? "pointer"
                         : "default",
                     textAlign: "left",
@@ -126,38 +126,39 @@ const [showDeleteModal, setShowDeleteModal] = useState(false);
                     }}
                   >
                     <span>{col.name.toUpperCase()}</span>
-                    {col.key !== "edit" && col.key !== "ProdID" && (
-                      <div
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          lineHeight: "1",
-                        }}
-                      >
-                        <FaCaretUp
-                          size={12}
+                    {col.key !== "edit" &&
+                      col.key !== "media_url" && ( // Changed ProdID to media_url
+                        <div
                           style={{
-                            marginBottom: "-3px",
-                            visibility:
-                              sortConfig.key === col.key &&
-                              sortConfig.direction !== "asc"
-                                ? "hidden"
-                                : "visible",
+                            display: "flex",
+                            flexDirection: "column",
+                            lineHeight: "1",
                           }}
-                        />
-                        <FaCaretDown
-                          size={12}
-                          style={{
-                            marginTop: "-3px",
-                            visibility:
-                              sortConfig.key === col.key &&
-                              sortConfig.direction !== "desc"
-                                ? "hidden"
-                                : "visible",
-                          }}
-                        />
-                      </div>
-                    )}
+                        >
+                          <FaCaretUp
+                            size={12}
+                            style={{
+                              marginBottom: "-3px",
+                              visibility:
+                                sortConfig.key === col.key &&
+                                sortConfig.direction !== "asc"
+                                  ? "hidden"
+                                  : "visible",
+                            }}
+                          />
+                          <FaCaretDown
+                            size={12}
+                            style={{
+                              marginTop: "-3px",
+                              visibility:
+                                sortConfig.key === col.key &&
+                                sortConfig.direction !== "desc"
+                                  ? "hidden"
+                                  : "visible",
+                            }}
+                          />
+                        </div>
+                      )}
                   </div>
                 </th>
               ))}
@@ -189,16 +190,15 @@ const [showDeleteModal, setShowDeleteModal] = useState(false);
                         <FaRegTrashAlt
                           className="action-icon"
                           size={16}
-                                                    onClick={() => handleDeleteClick(item)}
-
+                          onClick={() => handleDeleteClick(item)}
                           style={{ cursor: "pointer" }}
                         />
                       </div>
-                    ) : col.key === "ProdID" ? (
+                    ) : col.key === "media_url" ? ( // Changed ProdID to media_url
                       <img
-                        src={`/product_images/${item.ProdID}.png`}
+                        src={decodeBase64(item.media_url)} // Use media_url directly
                         className="img-table"
-                        alt={decodeBase64(item.ProdID)}
+                        alt={decodeBase64(item.name)} // Changed ProdID to name for alt text
                       />
                     ) : typeof item[col.key] === "number" ? (
                       item[col.key]
@@ -270,16 +270,30 @@ const [showDeleteModal, setShowDeleteModal] = useState(false);
           />
         </div>
       </div>
-        {showDeleteModal && (
+      {showDeleteModal && (
         <div className="modal-overlay">
           <div className="modal-content">
-            <button className="close-button" onClick={() => setShowDeleteModal(false)}>
+            <button
+              className="close-button"
+              onClick={() => setShowDeleteModal(false)}
+            >
               &times;
             </button>
             <h3>Confirm Delete</h3>
-            <p>Are you sure you want to delete the product "{productToDelete && decodeBase64(productToDelete.name)}"? This action cannot be undone.</p>
-            <button className="btn btn-danger" onClick={confirmDelete}>Delete</button>
-            <button className="btn btn-secondary" onClick={() => setShowDeleteModal(false)}>Cancel</button>
+            <p>
+              Are you sure you want to delete the product "
+              {productToDelete && decodeBase64(productToDelete.name)}"? This
+              action cannot be undone.
+            </p>
+            <button className="btn btn-danger" onClick={confirmDelete}>
+              Delete
+            </button>
+            <button
+              className="btn btn-secondary"
+              onClick={() => setShowDeleteModal(false)}
+            >
+              Cancel
+            </button>
           </div>
         </div>
       )}

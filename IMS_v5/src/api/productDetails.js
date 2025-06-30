@@ -3,7 +3,7 @@
 import React from "react";
 import { decodeBase64 } from "../api/decodeBase64";
 
-const ProductDetails = ({ product, columnsMap, onEdit,  onInsert}) => {
+const ProductDetails = ({ product, columnsMap, onEdit, onInsert }) => {
   if (!product) return null;
 
   return (
@@ -13,7 +13,7 @@ const ProductDetails = ({ product, columnsMap, onEdit,  onInsert}) => {
           <h4>Product Details</h4>
         </div>
         <div className="col-md-6 text-end">
-          <button className="btn btn-sm btn-success mx-2"   onClick={() => onInsert(product)}>Add Variant</button>
+          <button className="btn btn-sm btn-success mx-2" onClick={() => onInsert(product)}>Add Variant</button>
           <button
             className="btn btn-sm btn-warning"
             onClick={() => onEdit(product)}
@@ -25,10 +25,10 @@ const ProductDetails = ({ product, columnsMap, onEdit,  onInsert}) => {
       {/* Product Image & Name */}
       <div className="text-center mb-3">
         <img
-          src={`/product_images/${product.ProdID}.png`}
+          src={decodeBase64(product.media_url)} // Changed to use product.media_url directly
           className="img-fluid"
           style={{ maxWidth: "120px", height: "auto" }}
-          alt={decodeBase64(product.ProdID)}
+          alt={decodeBase64(product.name)} // Changed alt text to product.name for better description
         />
       </div>
 
@@ -36,7 +36,7 @@ const ProductDetails = ({ product, columnsMap, onEdit,  onInsert}) => {
       <table className="table table-sm">
         <tbody>
           {Object.entries(columnsMap).map(([key, name]) => {
-            if (key === "edit") return null; // Skip "edit" column
+            if (key === "edit" || key === "media_url") return null; // Skip "edit" and "media_url" columns
 
             const value = product[key];
             return (
@@ -44,9 +44,7 @@ const ProductDetails = ({ product, columnsMap, onEdit,  onInsert}) => {
                 <td className="fw-bold">{name}</td>
                 <td>
                   :&nbsp; &nbsp;
-                  {key === "ProdID"
-                    ? "" // Skip this as it's already handled by the image above
-                    : typeof value === "number"
+                  {typeof value === "number"
                     ? value
                     : decodeBase64(value)}
                 </td>

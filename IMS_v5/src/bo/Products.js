@@ -97,16 +97,15 @@ const ProductsManagement = () => {
     fetchProducts(category.id); // Pass even if it's "all"
   };
 
-  const columns = [
-    { name: "Img", key: "ProdID" },
-    { name: "Barcode", key: "barcode" },
-    { name: "Name", key: "name" },
-    { name: "Category", key: "categoryName" },
-    { name: "Product Type", key: "productTypeName" },
-    { name: "Supplier", key: "supplierName" },
-    { name: "", key: "edit" },
-  ];
-
+    const columns = [
+        { name: "Img", key: "media_url" }, // Changed ProdID to media_url
+        { name: "Barcode", key: "barcode" },
+        { name: "Name", key: "name" },
+        { name: "Category", key: "categoryName" },
+        { name: "Product Type", key: "productTypeName" },
+        { name: "Supplier", key: "supplierName" },
+        { name: "", key: "edit" },
+    ];
   return (
     <div className="container-fluid">
       {loading && (

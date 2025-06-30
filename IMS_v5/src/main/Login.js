@@ -42,7 +42,8 @@ const Login = ({ onLogin, error }) => {
 
       const encryptedUsername = encrypt(username);
       const encryptedPassword = encrypt(password);
-
+      console.log('Encrypted Username:', encryptedUsername);
+      console.log('Encrypted Password:', encryptedPassword);
       try {
           const response = await axios.post(`${process.env.REACT_APP_API_URL}/login`, {
               username: encryptedUsername,
