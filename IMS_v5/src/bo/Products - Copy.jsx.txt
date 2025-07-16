@@ -1,0 +1,247 @@
+import React, { useState, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import axios from "axios";
+
+import { CustomDropdown } from "../api/CustomDropdown";
+import { fetchQueryData } from "../api/fetchData";
+import ProductTable from "../api/productTable";
+import { decodeBase64 } from "../utils/decode";
+
+import {
+  FaPlusCircle,
+  FaFileExcel,
+  FaCheck,
+  FaEye,
+  FaStar,
+  FaEdit,
+  FaTrashAlt,
+  FaLock,
+  FaUnlock,
+} from "react-icons/fa";
+
+import "bootstrap/dist/css/bootstrap.min.css";
+import "../css/loading.css";
+import "../css/tables.css";
+import "../css/forms.css";
+
+const rowOptions = [
+  { id: 10, name: "10 rows" },
+  { id: 20, name: "20 rows" },
+  { id: 50, name: "50 rows" },
+  { id: 100, name: "100 rows" },
+];
+
+const ProductsManagement = () => {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState({});
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const loadProducts = async () => {
+      setLoading(true);
+      try {
+        const token = localStorage.getItem("accessToken");
+        const where =
+          selectedCategory.id && selectedCategory.id !== "all"
+            ? `products.category_id='${selectedCategory.id}'`
+            : "";
+
+        const data = await fetchQueryData(token, {
+          table:
+            "products " +
+            "LEFT JOIN categories ON categories.category_id = products.category_id " +
+            "LEFT JOIN suppliers ON suppliers.supplier_id = products.supplier_id",
+          columns:
+            "products.*, " +
+            "categories.name AS categoryName, " +
+            "suppliers.name AS supplierName",
+          where,
+          order: "products.product_id DESC",
+        });
+
+        const decoded = data.map((p) => ({
+          ...p,
+          name: decodeBase64(p.name),
+          brand_name: decodeBase64(p.brand_name),
+          categoryName: decodeBase64(p.categoryName),
+          supplierName: decodeBase64(p.supplierName),
+        }));
+
+        setProducts(decoded);
+      } catch (err) {
+        console.error("Error fetching products:", err);
+        alert("Unable to load products.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadProducts();
+  }, [selectedCategory]);
+
+  const updateProductField = async (id, field, value) => {
+    const token = localStorage.getItem("accessToken");
+    try {
+      await axios.put(`${process.env.REACT_APP_API_URL}/update/products`, {
+        product_id: id,
+        [field]: value,
+      }, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      setProducts((prev) =>
+        prev.map((p) => (p.product_id === id ? { ...p, [field]: value } : p))
+      );
+    } catch (err) {
+      console.error(`Failed to update ${field}:`, err);
+      alert(`Unable to update ${field}`);
+    }
+  };
+
+  const handleStatusToggle = (row) => {
+    const next = row.status === "active" ? "inactive" : "active";
+    updateProductField(row.product_id, "status", next);
+  };
+
+  const handleVisibilityToggle = (row) => {
+    const next = row.visibility === "public" ? "private" : "public";
+    updateProductField(row.product_id, "visibility", next);
+  };
+
+  const handleFeaturedToggle = (row) => {
+    const next = row.is_featured ? 0 : 1;
+    updateProductField(row.product_id, "is_featured", next);
+  };
+
+  const handleCategoryChange = (opt) => {
+    setSelectedCategory(opt);
+  };
+
+  const handleView = (row) => {
+    navigate(`/products/${row.product_id}`);
+  };
+
+  const handleEdit = (row) => {
+    navigate(`/products/edit/${row.product_id}`);
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Delete this product?")) return;
+    try {
+      const token = localStorage.getItem("accessToken");
+      await axios.delete(`${process.env.REACT_APP_API_URL}/delete/products`, {
+        data: { product_id: id },
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setProducts((prev) => prev.filter((p) => p.product_id !== id));
+      alert("Product deleted.");
+    } catch (err) {
+      console.error(err);
+      alert("Could not delete product.");
+    }
+  };
+
+  const columns = [
+    { name: "ID", key: "product_id" },
+    { name: "Name", key: "name" },
+    { name: "Brand", key: "brand_name" },
+    { name: "Category", key: "categoryName" },
+    { name: "Supplier", key: "supplierName" },
+    {
+      name: "Actions",
+      key: "actions",
+      render: (row) => (
+        <div className="btn-group" role="group">
+          <button className="btn btn-outline-success btn-sm" onClick={() => handleStatusToggle(row)} title={`Status: ${row.status}`}>
+            <FaCheck />
+          </button>
+          <button className="btn btn-outline-secondary btn-sm" onClick={() => handleVisibilityToggle(row)} title={`Visibility: ${row.visibility}`}>
+            {row.visibility === "public" ? <FaUnlock /> : <FaLock />}
+          </button>
+          <button className="btn btn-outline-warning btn-sm" onClick={() => handleFeaturedToggle(row)} title={`Featured: ${row.is_featured ? "Yes" : "No"}`}>
+            <FaStar />
+          </button>
+          <button className="btn btn-outline-info btn-sm" onClick={() => handleView(row)} title="View">
+            <FaEye />
+          </button>
+          <button className="btn btn-outline-secondary btn-sm" onClick={() => handleEdit(row)} title="Edit">
+            <FaEdit />
+          </button>
+          <button className="btn btn-outline-danger btn-sm" onClick={() => handleDelete(row.product_id)} title="Delete">
+            <FaTrashAlt />
+          </button>
+        </div>
+      ),
+    },
+  ];
+
+  return (
+    <div className="container-fluid">
+      {loading ? (
+        <div className="text-center my-5">
+          <span className="spinner-border text-primary" role="status" />
+          <p className="mt-2 text-muted">Loading products...</p>
+        </div>
+      ) : (
+        <>
+          <div className="row align-items-center gy-3 mb-3">
+            <div className="col-md-6 col-12">
+              <h3 className="fw-bold">🛍️ Products</h3>
+              <small className="text-muted">Manage your inventory efficiently</small>
+            </div>
+            <div className="col-md-6 col-12 text-md-end text-center">
+              <Link to="/add-product" className="btn btn-success me-2">
+                <FaPlusCircle className="me-1" /> Add Product
+              </Link>
+              <button className="btn btn-warning">
+                <FaFileExcel className="me-1" /> Export
+              </button>
+            </div>
+          </div>
+
+          <div className="card p-3">
+            <div className="row align-items-end gy-3 mb-3">
+              <div className="col-md-6 col-sm-12">
+                <label className="form-label">Category</label>
+                <CustomDropdown
+                  endpoint="categories"
+                  name="category_id"
+                  value={selectedCategory.id || ""}
+                  onChange={(e) => handleCategoryChange({ id: e.target.value })}
+                  idField="category_id"
+                  nameField="name"
+                  showAllOption
+                />
+              </div>
+              <div className="col-md-6 col-sm-12">
+                <label className="form-label">Rows per page</label>
+                <CustomDropdown
+                  name="rows"
+                  value={rowsPerPage}
+                  onChange={(e) => setRowsPerPage(+e.target.value)}
+                  options={rowOptions}
+                  idField="id"
+                  nameField="name"
+                />
+              </div>
+            </div>
+
+            <hr />
+
+            <div className="table-responsive">
+              <ProductTable
+                key={rowsPerPage}
+                columns={columns}
+                data={products}
+                rows={rowsPerPage}
+              />
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
+
+export default ProductsManagement;

@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { CustomDropdown } from "../api/CustomDropdown";
 import { Link } from "react-router-dom";
-
+import { CustomDropdown } from "../api/CustomDropdown";
 import {
   FaChevronDown,
   FaChevronUp,
-  FaInfoCircle,
   FaBox,
-  FaArrowLeft,
   FaClipboardList,
+  FaArrowLeft,
 } from "react-icons/fa";
 import axios from "axios";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -16,749 +14,590 @@ import "../css/loading.css";
 import "../css/tables.css";
 import "../css/forms.css";
 
-const AddProduct = () => {
-  const [SelectedCategory, setSelectedCategory] = useState({});
-  const [SelectedProductType, setSelectedProductType] = useState({});
-  const [SelectedSupplier, setSelectedSupplier] = useState({});
-  const [measurementType, setMeasurementType] = useState("single");
-
-  const [openSections, setOpenSections] = useState({
-    productInfo: true,
-    specifications: true,
-    stockInfo: true,
-    pricingInfo: true, // This section isn't in your provided code, but good to keep if you plan to add it
-    otherInfo: true, // This section isn't in your provided code, but good to keep if you plan to add it
-  });
-
-  const toggleSection = (section) => {
-    setOpenSections((prev) => ({
-      ...prev,
-      [section]: !prev[section],
-    }));
-  };
-
-  const [newProduct, setNewProduct] = useState({
-    // Basic Info
+const AddEditProduct = ({ isEditMode = false, existingProduct = {} }) => {
+  // ── FORM STATE ─────────────────────────────────────────────────────────
+  const [product, setProduct] = useState({
     name: "",
+    supplier_id: "",
+    category_id: "",
+    product_type_id: "",
+    media_url: "",
+    status: "active",
+  });
+  const [details, setDetails] = useState({
     description: "",
-    category: "",
-    subcategory: "",
-    product_code: "",
-    image: null, // Keep this as null or File object if you want to display a preview
-    media_url: "", // New state to store the uploaded image URL from the API response
-
-    // Specifications
-    brand_name: "",
     model_number: "",
     serial_number: "",
-    length: "",
-    width: "",
-    height: "",
-    weight: "",
     specifications: "",
     warranty_period: "",
-
-    // Stock Info
+    tax_class: "taxable",
+    status: "active",
+  });
+  const [unitsData, setUnitsData] = useState({
     barcode: "",
-    sku: "",
-    batch_number: "",
-    warehouse_zone: "",
-
-    // Measurement Type: Single or Multiple
-    unit_of_measure: "", // for single
-    quantity_in_stock: "",
-
-    main_unit: "", // for multiple
+    unit_of_measure: "",
+    main_unit: "",
     sub_unit: "",
     conversion_factor: "",
-    quantity_in_stock_main_unit: "",
-    quantity_in_stock_sub_unit: "",
+  });
+  const [measurementType, setMeasurementType] = useState("single");
+  const [openSections, setOpenSections] = useState({
+    core: true,
+    details: true,
+    units: true,
   });
 
-  const insertProduct = async () => {
-    const token = localStorage.getItem("accessToken");
-    if (!token) {
-      throw new Error("No token found");
-    }
-
-    const productData = {
-      supplier_id: SelectedSupplier.id,
-      name: newProduct.name.trim(),
-      category_id: SelectedCategory.id,
-      barcode: newProduct.barcode.trim(),
-      brand_name: newProduct.brand_name.trim(),
-      product_type_id: SelectedProductType.id,
-      // Pass the uploaded image URL
- // Use the new media_url state for the image path
-    };
-
-    try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/insert/products`,
-        productData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      console.log("Product inserted:", response.data);
-      return response.data.id; // Assuming the response returns the product_id
-    } catch (error) {
-      console.error(
-        "Error inserting product:",
-        error.response ? error.response.data : error.message
-      );
-      throw new Error("Failed to insert product");
-    }
-  };
-
-  const insertProductDetails = async (productId) => {
-    const token = localStorage.getItem("accessToken");
-    if (!token) {
-      throw new Error("No token found");
-    }
-
-    const productDetailsData = {
-      product_id: productId,
-      description: newProduct.description.trim(),
-      model_number: newProduct.model_number.trim(),
-      specifications: newProduct.specifications.trim(),
-      warranty_period: parseInt(newProduct.warranty_period),
-      serial_number: newProduct.serial_number.trim(),
-      batch_number: newProduct.batch_number.trim(),
-      tax_class: "taxable", // You can adjust based on your requirements
-      status: "active", // You can adjust based on your requirements
-      media_url: newProduct.media_url,     };
-
-    try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/insert/product_details`,
-        productDetailsData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      console.log("Product details inserted:", response.data);
-    } catch (error) {
-      console.error(
-        "Error inserting product details:",
-        error.response ? error.response.data : error.message
-      );
-      throw new Error("Failed to insert product details");
-    }
-  };
-
-  const insertProductUnit = async (productId) => {
-    const token = localStorage.getItem("accessToken");
-    if (!token) {
-      throw new Error("No token found");
-    }
-
-    const productUnits = [];
-
-    if (measurementType === "single") {
-      // Single unit entry
-      productUnits.push({
-        product_id: productId,
-        unit_name: newProduct.unit_of_measure.trim(),
-        conversion_factor: 1,
-        barcode: newProduct.barcode?.trim() || "", // Optional chaining in case it's undefined
+  // ── PREFILL ON EDIT ─────────────────────────────────────────────────────
+  useEffect(() => {
+    if (isEditMode && existingProduct.product_id) {
+      // Core product
+      setProduct({
+        name: existingProduct.name || "",
+        supplier_id: existingProduct.supplier_id || "",
+        category_id: existingProduct.category_id || "",
+        product_type_id: existingProduct.product_type_id || "",
+        media_url: existingProduct.media_url || "",
+        status: existingProduct.status || "active",
       });
-    } else if (measurementType === "multiple") {
-      // Sub unit entry (conversion_factor = 1)
-      productUnits.push({
-        product_id: productId,
-        unit_name: newProduct.sub_unit.trim(),
-        conversion_factor: 1,
-        barcode: newProduct.barcode?.trim() || "", // Using same barcode or could make it dynamic
+      // Details
+      setDetails({
+        description: existingProduct.description || "",
+        model_number: existingProduct.model_number || "",
+        serial_number: existingProduct.serial_number || "",
+        specifications: existingProduct.specifications || "",
+        warranty_period:
+          existingProduct.warranty_period?.toString() || "",
+        tax_class: existingProduct.tax_class || "taxable",
+        status: existingProduct.detail_status || "active",
       });
-
-      // Main unit entry
-      productUnits.push({
-        product_id: productId,
-        unit_name: newProduct.main_unit.trim(),
-        conversion_factor: parseInt(newProduct.conversion_factor),
-        barcode: "", // Leave empty or add another barcode field if needed
-      });
-    }
-
-    try {
-      const insertedIds = [];
-
-      for (const unit of productUnits) {
-        const response = await axios.post(
-          `${process.env.REACT_APP_API_URL}/insert/product_units`,
-          unit,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        console.log("Inserted unit:", response.data);
-        insertedIds.push(response.data.product_unit_id);
+      // Units (assume first variant)
+      if (
+        existingProduct.units &&
+        existingProduct.units.length === 1
+      ) {
+        const u = existingProduct.units[0];
+        setUnitsData({
+          barcode: u.barcode || "",
+          unit_of_measure: u.unit_name || "",
+          main_unit: "",
+          sub_unit: "",
+          conversion_factor: "1",
+        });
+        setMeasurementType("single");
+      } else if (
+        existingProduct.units &&
+        existingProduct.units.length === 2
+      ) {
+        const [sub, main] = existingProduct.units;
+        setUnitsData({
+          barcode: sub.barcode || "",
+          unit_of_measure: "",
+          main_unit: main.unit_name || "",
+          sub_unit: sub.unit_name || "",
+          conversion_factor: main.conversion_factor?.toString() || "",
+        });
+        setMeasurementType("multiple");
       }
-
-      return insertedIds;
-    } catch (error) {
-      console.error(
-        "Error inserting product units:",
-        error.response ? error.response.data : error.message
-      );
-      throw new Error("Failed to insert product units");
     }
+    // eslint-disable-next-line
+  }, [isEditMode, existingProduct]);
+
+  // ── HELPERS ─────────────────────────────────────────────────────────────
+  const toggleSection = (sec) =>
+    setOpenSections((prev) => ({ ...prev, [sec]: !prev[sec] }));
+
+  const handleProductChange = (e) => {
+    const { name, value } = e.target;
+    setProduct((p) => ({ ...p, [name]: value }));
+  };
+  const handleDetailsChange = (e) => {
+    const { name, value } = e.target;
+    setDetails((d) => ({ ...d, [name]: value }));
+  };
+  const handleUnitsChange = (e) => {
+    const { name, value } = e.target;
+    setUnitsData((u) => ({ ...u, [name]: value }));
   };
 
   const generateBarcode = () => {
-    const timestamp = Date.now();
-    setNewProduct({ ...newProduct, barcode: `YNG${timestamp}` });
+    setUnitsData((u) => ({
+      ...u,
+      barcode: "PRD" + Date.now(),
+    }));
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setNewProduct((prevProduct) => ({ ...prevProduct, [name]: value }));
-  };
-
-  const handleFormSubmit = async (e) => {
-    e.preventDefault();
-
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const formData = new FormData();
+    formData.append("image", file);
     try {
-      // Insert product
-      const productId = await insertProduct();
-
-      // Insert product details
-      await insertProductDetails(productId);
-
-      // Insert product unit
-      await insertProductUnit(productId);
-
-      // Reset the form after successful insertions
-      setNewProduct({
-        // Basic Info
-        name: "",
-        description: "",
-        category: "",
-        subcategory: "",
-        product_code: "",
-        image: null,
-        media_url: "", // Reset image URL as well
-
-        // Specifications
-        brand_name: "",
-        model_number: "",
-        serial_number: "",
-        length: "",
-        width: "",
-        height: "",
-        weight: "",
-        specifications: "",
-        warranty_period: "",
-
-        // Stock Info
-        barcode: "",
-        sku: "",
-        batch_number: "",
-        warehouse_zone: "",
-
-        // Measurement Type: Single or Multiple
-        unit_of_measure: "", // for single
-        quantity_in_stock: "",
-
-        main_unit: "", // for multiple
-        sub_unit: "",
-        conversion_factor: "",
-        quantity_in_stock_main_unit: "",
-        quantity_in_stock_sub_unit: "",
-      });
-
-      alert("Product created successfully!");
-    } catch (error) {
-      alert(`Error: ${error.message}`);
+      const token = localStorage.getItem("accessToken");
+      const res = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/image/upload`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      setProduct((p) => ({ ...p, media_url: res.data.image_url }));
+    } catch {
+      alert("Image upload failed.");
     }
   };
 
-  // Scrollable table columns
+  // ── SUBMIT ──────────────────────────────────────────────────────────────
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem("accessToken");
+      if (!token) throw new Error("No token");
+
+      // 1. Core product
+      const corePayload = {
+        ...product,
+      };
+      let coreResp;
+      if (isEditMode) {
+        coreResp = await axios.put(
+          `${process.env.REACT_APP_API_URL}/products/${existingProduct.product_id}`,
+          corePayload,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+      } else {
+        coreResp = await axios.post(
+          `${process.env.REACT_APP_API_URL}/insert/products`,
+          corePayload,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+      }
+      const productId = isEditMode
+        ? existingProduct.product_id
+        : coreResp.data.id;
+
+      // 2. Product details
+      await axios.post(
+        `${process.env.REACT_APP_API_URL}/insert/product_details`,
+        {
+          product_id: productId,
+          ...details,
+          warranty_period: parseInt(details.warranty_period || 0, 10),
+          media_url: product.media_url,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      // 3. Product units
+      // If edit: you may want to delete existing units first
+      const unitsToInsert = [];
+      if (measurementType === "single") {
+        unitsToInsert.push({
+          product_id: productId,
+          unit_name: unitsData.unit_of_measure,
+          conversion_factor: 1,
+          barcode: unitsData.barcode,
+        });
+      } else {
+        unitsToInsert.push({
+          product_id: productId,
+          unit_name: unitsData.sub_unit,
+          conversion_factor: 1,
+          barcode: unitsData.barcode,
+        });
+        unitsToInsert.push({
+          product_id: productId,
+          unit_name: unitsData.main_unit,
+          conversion_factor: parseFloat(
+            unitsData.conversion_factor || 1
+          ),
+          barcode: "",
+        });
+      }
+      await Promise.all(
+        unitsToInsert.map((u) =>
+          axios.post(
+            `${process.env.REACT_APP_API_URL}/insert/product_units`,
+            u,
+            { headers: { Authorization: `Bearer ${token}` } }
+          )
+        )
+      );
+
+      alert(
+        isEditMode
+          ? "Product updated successfully!"
+          : "Product created successfully!"
+      );
+    } catch (err) {
+      console.error(err);
+      alert(`Error: ${err.response?.data || err.message}`);
+    }
+  };
+
+  // ── RENDER ─────────────────────────────────────────────────────────────
   return (
     <div className="container-fluid">
-      <div className="row">
-        <div className="col-md-12">
-          <form onSubmit={handleFormSubmit}>
-            <div className="row align-items-center mb-3">
-              <div className="col-md-6">
-                <h3>Create Product</h3>
-                <span className="text-muted">Add a new product to the list</span>
-              </div>
-              <div className="col-md-6 text-end">
-                <Link to="/products" className="btn btn-md btn-warning">
-                  <FaArrowLeft size={14} />
-                  &nbsp; Back to Products
-                </Link>
-              </div>
-            </div>
-            {/* Product Information */}
-            <div className="card mt-3">
-              <div
-                className="card-header d-flex justify-content-between align-items-center"
-                onClick={() => toggleSection("productInfo")}
-                style={{ cursor: "pointer" }}
-              >
-                <h4 className="mb-2 mt-2">
-                  <FaInfoCircle className="edit-button" /> Product Information
-                </h4>
-                <span>
-                  {openSections.productInfo ? (
-                    <FaChevronUp />
-                  ) : (
-                    <FaChevronDown />
-                  )}
-                </span>
-              </div>
-              {openSections.productInfo && (
-                <div className="card-body">
-                  <div className="row mb-3">
-                    <div className="col-md-12">
-                      <label>Name</label>
-                      <input
-                        name="name"
-                        className="form-control"
-                        placeholder="Name"
-                        value={newProduct.name}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </div>
-                  </div>
-                  <div className="row mb-3">
-                    <div className="col-12">
-                      <label>Description</label>{" "}
-                      <span className="text-danger">*</span>
-                      <textarea
-                        name="description"
-                        className="form-control"
-                        placeholder="Description"
-                        value={newProduct.description}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </div>
-                  </div>
-                  <div className="row mb-3">
-                    <div className="col-md-6">
-                      <label>Category</label>
-                      <CustomDropdown
-                        endpoint="categories"
-                        name="category_id"
-                        value={SelectedCategory.id || ""}
-                        onChange={(e) =>
-                          setSelectedCategory({ id: e.target.value })
-                        }
-                        idField="category_id"
-                        nameField="name"
-                        showAllOption={false}
-                        required
-                      />
-                    </div>
-                    <div className="col-md-6">
-                      <label>Type</label>
-                      <CustomDropdown
-                        endpoint="product_types"
-                        name="product_type_id"
-                        value={SelectedProductType.id || ""}
-                        onChange={(e) =>
-                          setSelectedProductType({ id: e.target.value })
-                        }
-                        idField="product_type_id"
-                        nameField="name"
-                        showAllOption={false}
-                        required
-                      />
-                    </div>
-                  </div>
-                  <div className="row mb-3">
-                    <div className="col-md-6">
-                      <label>Supplier</label>
-                      <CustomDropdown
-                        endpoint="suppliers"
-                        name="supplier_id"
-                        value={SelectedSupplier.id || ""}
-                        onChange={(e) =>
-                          setSelectedSupplier({ id: e.target.value })
-                        }
-                        idField="supplier_id"
-                        nameField="name"
-                        showAllOption={false}
-                        required
-                      />
-                    </div>
-                    <div className="col-md-6">
-                      <label>Upload Image</label>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="form-control"
-                        onChange={async (e) => {
-                          const file = e.target.files[0];
-                          if (!file) return;
-
-                          const formData = new FormData();
-                          formData.append("image", file); // Key should be 'image' as per your curl command
-
-                          try {
-                            const token = localStorage.getItem("accessToken");
-                            const res = await axios.post(
-                              `${process.env.REACT_APP_API_URL}/api/image/upload`, // Your upload endpoint
-                              formData,
-                              {
-                                headers: {
-                                  Authorization: `Bearer ${token}`,
-                                  "Content-Type": "multipart/form-data", // Crucial for file uploads
-                                },
-                              }
-                            );
-
-                            // Assuming response returns something like { "message": "...", "image_url": "..." }
-                            const uploadedImageUrl = res.data.image_url; // Extract the full URL
-
-                            setNewProduct((prev) => ({
-                              ...prev,
-                              media_url: uploadedImageUrl, // Store the full image URL
-                            }));
-                            alert("Image uploaded successfully!"); // Provide user feedback
-                          } catch (err) {
-                            console.error(
-                              "Image upload failed:",
-                              err.response ? err.response.data : err.message
-                            );
-                            alert("Image upload failed. Please try again.");
-                            // Optionally, reset the file input or media_url on failure
-                            setNewProduct((prev) => ({
-                              ...prev,
-                              media_url: "",
-                            }));
-                          }
-                        }}
-                      />
-                       {newProduct.media_url && (
-                        <div className="mt-2">
-                          <small className="text-success">
-                            Image uploaded:{" "}
-                            <a href={newProduct.media_url} target="_blank" rel="noopener noreferrer">
-                              {newProduct.media_url.split('/').pop()}
-                            </a>
-                          </small>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Specifications */}
-            <div className="card mt-3">
-              <div
-                className="card-header d-flex justify-content-between align-items-center"
-                onClick={() => toggleSection("specifications")}
-                style={{ cursor: "pointer" }}
-              >
-                <h4 className="mb-2 mt-2">
-                  <FaClipboardList className="edit-button" /> Specifications
-                </h4>
-                <span>
-                  {openSections.specifications ? (
-                    <FaChevronUp />
-                  ) : (
-                    <FaChevronDown />
-                  )}
-                </span>
-              </div>
-              {openSections.specifications && (
-                <div className="card-body">
-                  <div className="row mb-3">
-                    <div className="col-md-4">
-                      <label>Brand Name</label>
-                      <input
-                        name="brand_name"
-                        className="form-control"
-                        placeholder="Brand Name"
-                        value={newProduct.brand_name}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </div>
-                    <div className="col-md-4">
-                      <label>Model Number</label>
-                      <input
-                        name="model_number"
-                        className="form-control"
-                        placeholder="Model Number"
-                        value={newProduct.model_number}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </div>
-                    <div className="col-md-4">
-                      <label>Serial Number</label>
-                      <input
-                        name="serial_number"
-                        className="form-control"
-                        placeholder="Serial Number"
-                        value={newProduct.serial_number}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="row mb-3">
-                    <div className="col-md-6">
-                      <label>Specifications</label>
-                      <input
-                        name="specifications"
-                        className="form-control"
-                        placeholder="Specifications"
-                        value={newProduct.specifications}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </div>
-                    <div className="col-md-6">
-                      <label>Warranty Period</label>
-                      <input
-                        name="warranty_period"
-                        className="form-control"
-                        placeholder="Warranty Period"
-                        type="number"
-                        value={newProduct.warranty_period}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Stock Information */}
-            <div className="card mt-3">
-              <div
-                className="card-header d-flex justify-content-between align-items-center"
-                onClick={() => toggleSection("stockInfo")}
-                style={{ cursor: "pointer" }}
-              >
-                <h4 className="mb-2 mt-2">
-                  <FaClipboardList className="edit-button" /> Stocks
-                </h4>
-                <span>
-                  {openSections.stockInfo ? (
-                    <FaChevronUp />
-                  ) : (
-                    <FaChevronDown />
-                  )}
-                </span>
-              </div>
-              {openSections.stockInfo && (
-                <div className="card-body">
-                  <div className="row mb-3">
-                    <div className="col-md-6">
-                      <label>Barcode</label>
-                      <div className="input-group">
-                        <input
-                          name="barcode"
-                          className="form-control"
-                          placeholder="Barcode"
-                          value={newProduct.barcode}
-                          onChange={handleInputChange}
-                          required
-                        />
-                        <button
-                          type="button"
-                          className="btn btn-sm btn-secondary"
-                          onClick={generateBarcode}
-                        >
-                          Generate
-                        </button>
-                      </div>
-                    </div>
-                    <div className="col-md-6">
-                      <label>SKU</label>
-                      <input
-                        name="sku"
-                        className="form-control"
-                        placeholder="SKU"
-                        value={newProduct.sku}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </div>
-                  </div>
-                  <div className="row mb-3">
-                    <div className="col-md-6">
-                      <label>Batch Number</label>
-                      <input
-                        name="batch_number"
-                        className="form-control"
-                        placeholder="Batch Number"
-                        value={newProduct.batch_number}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </div>
-                    <div className="col-md-6">
-                      <label>Warehouse Zone</label>
-                      <input
-                        name="warehouse_zone"
-                        className="form-control"
-                        placeholder="Warehouse Zone"
-                        value={newProduct.warehouse_zone}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </div>
-                  </div>
-                  <div className="row mb-3">
-                    <div className="col-12">
-                      <label className="form-label d-block">
-                        Unit of Measurement
-                      </label>
-                      <div className="form-check form-check-inline">
-                        <input
-                          className="form-check-input"
-                          type="radio"
-                          name="measurementType"
-                          id="single"
-                          value="single"
-                          checked={measurementType === "single"}
-                          onChange={() => setMeasurementType("single")}
-                        />
-                        <label className="form-check-label" htmlFor="single">
-                          Single
-                        </label>
-                      </div>
-                      <div className="form-check form-check-inline">
-                        <input
-                          className="form-check-input"
-                          type="radio"
-                          name="measurementType"
-                          id="multiple"
-                          value="multiple"
-                          checked={measurementType === "multiple"}
-                          onChange={() => setMeasurementType("multiple")}
-                        />
-                        <label className="form-check-label" htmlFor="multiple">
-                          Multiple
-                        </label>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Conditional Inputs */}
-                  {measurementType === "single" && (
-                    <div className="row mb-3">
-                      <div className="col-md-6">
-                        <label>Measurement Name</label>
-                        <select
-                          name="unit_of_measure"
-                          className="form-control"
-                          value={newProduct.unit_of_measure}
-                          onChange={handleInputChange}
-                          required
-                        >
-                          <option value="" disabled>
-                            Select a unit
-                          </option>
-                          <option value="Piece">Piece</option>
-                          <option value="Box">Box</option>
-                          <option value="Pack">Pack</option>
-                          <option value="Kilogram">Kilogram</option>
-                          <option value="Liter">Liter</option>
-                          {/* Add more units as needed */}
-                        </select>
-                      </div>
-                    </div>
-                  )}
-
-                  {measurementType === "multiple" && (
-                    <>
-                      <div className="row mb-3">
-                        <div className="col-md-4">
-                          <label>Main Unit</label>
-
-                          <select
-                            name="main_unit"
-                            className="form-control"
-                            value={newProduct.main_unit}
-                            onChange={handleInputChange}
-                            required
-                          >
-                            <option value="" disabled>
-                              Select a unit
-                            </option>
-                            <option value="Piece">Piece</option>
-                            <option value="Box">Box</option>
-                            <option value="Pack">Pack</option>
-                            <option value="Kilogram">Kilogram</option>
-                            <option value="Liter">Liter</option>
-                            {/* Add more units as needed */}
-                          </select>
-                        </div>
-                        <div className="col-md-4">
-                          <label>Sub Unit</label>
-
-                          <select
-                            name="sub_unit"
-                            className="form-control"
-                            value={newProduct.sub_unit}
-                            onChange={handleInputChange}
-                            required
-                          >
-                            <option value="" disabled>
-                              Select a unit
-                            </option>
-                            <option value="Piece">Piece</option>
-                            <option value="Box">Box</option>
-                            <option value="Pack">Pack</option>
-                            <option value="Kilogram">Kilogram</option>
-                            <option value="Liter">Liter</option>
-                            {/* Add more units as needed */}
-                          </select>
-                        </div>
-                        <div className="col-md-4">
-                          <label>Conversion Factor</label>
-                          <input
-                            name="conversion_factor"
-                            className="form-control"
-                            type="number"
-                            placeholder="e.g., 10 (pieces in a box)"
-                            value={newProduct.conversion_factor}
-                            onChange={handleInputChange}
-                            required
-                          />
-                        </div>
-                      </div>
-                    </>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* Submit Button */}
-            <div className="text-center mt-3">
-              <button type="submit" className="btn btn-primary">
-                Add New Product
-              </button>
-            </div>
-          </form>
+      <form onSubmit={handleSubmit}>
+        {/* Header */}
+        <div className="row align-items-center mb-4">
+          <div className="col-md-6">
+            <h3>
+              {isEditMode ? "Edit Product" : "Add New Product"}
+            </h3>
+          </div>
+          <div className="col-md-6 text-end">
+            <Link to="/products" className="btn btn-warning">
+              <FaArrowLeft /> Back to Products
+            </Link>
+          </div>
         </div>
-      </div>
+
+        {/* 1. Core Product */}
+        <div className="card mb-4">
+          <div
+            className="card-header product-section d-flex justify-content-between"
+            onClick={() => toggleSection("core")}
+          >
+            <h4 className="mb-0">
+              <FaBox className="me-2" />
+              Core Product
+            </h4>
+            {openSections.core ? (
+              <FaChevronUp />
+            ) : (
+              <FaChevronDown />
+            )}
+          </div>
+          {openSections.core && (
+            <div className="card-body">
+              <p className="section-description">
+                Basic product record (products table).
+              </p>
+              <div className="row mb-3">
+                <div className="col-md-6">
+                  <label>Name</label>
+                  <input
+                    name="name"
+                    value={product.name}
+                    onChange={handleProductChange}
+                    className="form-control"
+                    required
+                  />
+                </div>
+                <div className="col-md-6">
+                  <label>Supplier</label>
+                  <CustomDropdown
+                    endpoint="suppliers"
+                    name="supplier_id"
+                    value={product.supplier_id}
+                    onChange={handleProductChange}
+                    idField="supplier_id"
+                    nameField="name"
+                    required
+                  />
+                </div>
+              </div>
+              <div className="row mb-3">
+                <div className="col-md-6">
+                  <label>Category</label>
+                  <CustomDropdown
+                    endpoint="categories"
+                    name="category_id"
+                    value={product.category_id}
+                    onChange={handleProductChange}
+                    idField="category_id"
+                    nameField="name"
+                    required
+                  />
+                </div>
+                <div className="col-md-6">
+                  <label>Type</label>
+                  <CustomDropdown
+                    endpoint="product_types"
+                    name="product_type_id"
+                    value={product.product_type_id}
+                    onChange={handleProductChange}
+                    idField="product_type_id"
+                    nameField="name"
+                    required
+                  />
+                </div>
+              </div>
+              <div className="mb-3">
+                <label>Image</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="form-control"
+                  onChange={handleImageUpload}
+                />
+                {product.media_url && (
+                  <img
+                    src={product.media_url}
+                    alt="preview"
+                    className="product-image-preview"
+                  />
+                )}
+              </div>
+              <div className="mb-3">
+                <label>Status</label>
+                <select
+                  name="status"
+                  value={product.status}
+                  onChange={handleProductChange}
+                  className="form-control"
+                >
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* 2. Product Details */}
+        <div className="card mb-4">
+          <div
+            className="card-header d-flex justify-content-between"
+            onClick={() => toggleSection("details")}
+          >
+            <h4 className="mb-0">
+              <FaClipboardList className="me-2" />
+              Product Details
+            </h4>
+            {openSections.details ? (
+              <FaChevronUp />
+            ) : (
+              <FaChevronDown />
+            )}
+          </div>
+          {openSections.details && (
+            <div className="card-body">
+              <p className="section-description">
+                Extended info (product_details table).
+              </p>
+              <div className="mb-3">
+                <label>Description</label>
+                <textarea
+                  name="description"
+                  value={details.description}
+                  onChange={handleDetailsChange}
+                  className="form-control"
+                  required
+                />
+              </div>
+              <div className="row mb-3">
+                <div className="col-md-4">
+                  <label>Model No.</label>
+                  <input
+                    name="model_number"
+                    value={details.model_number}
+                    onChange={handleDetailsChange}
+                    className="form-control"
+                  />
+                </div>
+                <div className="col-md-4">
+                  <label>Serial No.</label>
+                  <input
+                    name="serial_number"
+                    value={details.serial_number}
+                    onChange={handleDetailsChange}
+                    className="form-control"
+                  />
+                </div>
+                <div className="col-md-4">
+                  <label>Warranty (months)</label>
+                  <input
+                    name="warranty_period"
+                    type="number"
+                    value={details.warranty_period}
+                    onChange={handleDetailsChange}
+                    className="form-control"
+                  />
+                </div>
+              </div>
+              <div className="mb-3">
+                <label>Specifications</label>
+                <input
+                  name="specifications"
+                  value={details.specifications}
+                  onChange={handleDetailsChange}
+                  className="form-control"
+                />
+              </div>
+              <div className="mb-3">
+                <label>Tax Class</label>
+                <select
+                  name="tax_class"
+                  value={details.tax_class}
+                  onChange={handleDetailsChange}
+                  className="form-control"
+                >
+                  <option value="taxable">Taxable</option>
+                  <option value="non-taxable">Non-taxable</option>
+                </select>
+              </div>
+              <div className="mb-3">
+                <label>Status</label>
+                <select
+                  name="status"
+                  value={details.status}
+                  onChange={handleDetailsChange}
+                  className="form-control"
+                >
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* 3. Units */}
+        <div className="card mb-4">
+          <div
+            className="card-header d-flex justify-content-between"
+            onClick={() => toggleSection("units")}
+          >
+            <h4 className="mb-0">
+              <FaClipboardList className="me-2" />
+              Units
+            </h4>
+            {openSections.units ? (
+              <FaChevronUp />
+            ) : (
+              <FaChevronDown />
+            )}
+          </div>
+          {openSections.units && (
+            <div className="card-body">
+              <p className="section-description">
+                How you measure & barcode this product.
+              </p>
+              <div className="mb-3">
+                <label>Barcode</label>
+                <div className="input-group">
+                  <input
+                    name="barcode"
+                    value={unitsData.barcode}
+                    onChange={handleUnitsChange}
+                    className="form-control"
+                    required
+                  />
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={generateBarcode}
+                  >
+                    Generate
+                  </button>
+                </div>
+              </div>
+              <div className="mb-3">
+                <label>Measurement Mode</label>
+                <div>
+                  <label className="me-3">
+                    <input
+                      type="radio"
+                      name="measurementType"
+                      value="single"
+                      checked={measurementType === "single"}
+                      onChange={() => setMeasurementType("single")}
+                    />{" "}
+                    Single
+                  </label>
+                  <label>
+                    <input
+                      type="radio"
+                      name="measurementType"
+                      value="multiple"
+                      checked={measurementType === "multiple"}
+                      onChange={() => setMeasurementType("multiple")}
+                    />{" "}
+                    Multiple
+                  </label>
+                </div>
+              </div>
+
+              {measurementType === "single" && (
+                <div className="mb-3">
+                  <label>Unit of Measure</label>
+                  <select
+                    name="unit_of_measure"
+                    value={unitsData.unit_of_measure}
+                    onChange={handleUnitsChange}
+                    className="form-control"
+                    required
+                  >
+                    <option value="">Select unit</option>
+                    <option>Piece</option>
+                    <option>Box</option>
+                    <option>Kilogram</option>
+                    <option>Liter</option>
+                  </select>
+                </div>
+              )}
+
+              {measurementType === "multiple" && (
+                <div className="row mb-3">
+                  <div className="col-md-4">
+                    <label>Sub‐Unit</label>
+                    <select
+                      name="sub_unit"
+                      value={unitsData.sub_unit}
+                      onChange={handleUnitsChange}
+                      className="form-control"
+                      required
+                    >
+                      <option value="">Select sub unit</option>
+                      <option>Piece</option>
+                      <option>Liter</option>
+                    </select>
+                  </div>
+                  <div className="col-md-4">
+                    <label>Main‐Unit</label>
+                    <select
+                      name="main_unit"
+                      value={unitsData.main_unit}
+                      onChange={handleUnitsChange}
+                      className="form-control"
+                      required
+                    >
+                      <option value="">Select main unit</option>
+                      <option>Box</option>
+                      <option>Pack</option>
+                    </select>
+                  </div>
+                  <div className="col-md-4">
+                    <label>Conversion Factor</label>
+                    <input
+                      name="conversion_factor"
+                      type="number"
+                      value={unitsData.conversion_factor}
+                      onChange={handleUnitsChange}
+                      className="form-control"
+                      placeholder="e.g. 12"
+                      required
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Submit */}
+        <div className="text-center mb-5">
+          <button type="submit" className="btn btn-primary btn-lg">
+            {isEditMode ? "Save Changes" : "Add Product"}
+          </button>
+        </div>
+      </form>
     </div>
   );
 };
 
-export default AddProduct;
+export default AddEditProduct;

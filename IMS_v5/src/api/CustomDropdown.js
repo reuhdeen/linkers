@@ -5,17 +5,26 @@ import "../css/loading.css";
 
 const CustomDropdown = ({
   endpoint,
+  options: staticOptions,
   name,
   value,
   onChange,
   idField,
   nameField,
-  showAllOption = true,  // Default to true if not provided
+  showAllOption = true,
 }) => {
   const [options, setOptions] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // If static options are provided, use them directly
+    if (Array.isArray(staticOptions)) {
+      setOptions(staticOptions);
+      setLoading(false);
+      return;
+    }
+
+    // Otherwise, fetch from API
     const fetchOptions = async () => {
       try {
         setLoading(true);
@@ -27,25 +36,30 @@ const CustomDropdown = ({
           columns: "*",
         });
 
-        // Add "All Categories" option if showAllOption is true
+        const decoded = (data || []).map((item) => ({
+          ...item,
+          [nameField]: decodeBase64(item[nameField]),
+        }));
+
         if (showAllOption) {
           const allOption = {
             [idField]: "all",
             [nameField]: "All Categories",
           };
-          setOptions([allOption, ...(data || [])]);
+          setOptions([allOption, ...decoded]);
         } else {
-          setOptions(data || []);
+          setOptions(decoded);
         }
       } catch (error) {
         console.error("Error fetching options:", error);
+        setOptions([]);
       } finally {
         setLoading(false);
       }
     };
 
     fetchOptions();
-  }, [endpoint, showAllOption]);
+  }, [endpoint, showAllOption, staticOptions, idField, nameField]);
 
   return (
     <select
@@ -61,9 +75,9 @@ const CustomDropdown = ({
       {loading ? (
         <option disabled>Loading...</option>
       ) : (
-        options.map((option) => (
-          <option key={option[idField]} value={option[idField]}>
-            {decodeBase64(option[nameField])}
+        options.map((opt) => (
+          <option key={opt[idField]} value={opt[idField]}>
+            {opt[nameField]}
           </option>
         ))
       )}

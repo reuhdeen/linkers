@@ -75,7 +75,7 @@ const ProductTable = ({ columns, data, title, rows, onEdit, onDelete }) => {
   };
   const confirmDelete = async () => {
     if (productToDelete) {
-      await onDelete(productToDelete.ProdID); // Call the delete function passed as a prop
+      await onDelete(productToDelete.product_id); // ✅ Correct key
       setShowDeleteModal(false);
       setProductToDelete(null);
     }
@@ -165,50 +165,45 @@ const ProductTable = ({ columns, data, title, rows, onEdit, onDelete }) => {
             </tr>
           </thead>
           <tbody>
-            {paginatedData.map((item) => (
-              <tr key={item.ProdID}>
-                {columns.map((col) => (
-                  <td key={col.key} className="align-middle">
-                    {col.key === "edit" ? (
-                      <div className="d-flex gap-2">
-                        <FaRegEdit
-                          className="action-icon"
-                          size={16}
-                          onClick={() => onEdit(item)}
-                          style={{ cursor: "pointer" }}
+            {paginatedData.map((item) => {
+             // console.log("Table row item:", item); // 👀 For debugging
+
+              return (
+                <tr key={item.product_id}>
+                  {columns.map((col) => (
+                    <td key={col.key} className="align-middle">
+                      {col.key === "edit" ? (
+                        <div className="d-flex gap-2">
+                          <FaRegEdit
+                            className="action-icon"
+                            size={16}
+                            onClick={() => onEdit(item)}
+                            style={{ cursor: "pointer" }}
+                          />
+                  
+                          <FaRegTrashAlt
+                            className="action-icon"
+                            size={16}
+                            onClick={() => handleDeleteClick(item)}
+                            style={{ cursor: "pointer" }}
+                          />
+                        </div>
+                      ) : col.key === "media_url" ? (
+                        <img
+                          src={decodeBase64(item.media_url)}
+                          className="img-table"
+                          alt={decodeBase64(item.name)}
                         />
-                        <FaRegEye
-                          className="action-icon"
-                          size={16}
-                          onClick={() =>
-                            navigate(`/products/${item.ProdID}`, {
-                              state: { product: item },
-                            })
-                          }
-                          style={{ cursor: "pointer" }}
-                        />
-                        <FaRegTrashAlt
-                          className="action-icon"
-                          size={16}
-                          onClick={() => handleDeleteClick(item)}
-                          style={{ cursor: "pointer" }}
-                        />
-                      </div>
-                    ) : col.key === "media_url" ? ( // Changed ProdID to media_url
-                      <img
-                        src={decodeBase64(item.media_url)} // Use media_url directly
-                        className="img-table"
-                        alt={decodeBase64(item.name)} // Changed ProdID to name for alt text
-                      />
-                    ) : typeof item[col.key] === "number" ? (
-                      item[col.key]
-                    ) : (
-                      decodeBase64(item[col.key])
-                    )}
-                  </td>
-                ))}
-              </tr>
-            ))}
+                      ) : typeof item[col.key] === "number" ? (
+                        item[col.key]
+                      ) : (
+                        decodeBase64(item[col.key])
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

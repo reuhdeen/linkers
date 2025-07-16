@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./App.css";
 import axios from "axios";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+
 import Categories from "./bo/Categories";
 import Suppliers from "./bo/Suppliers";
 import Inventory from "./bo/Inventory";
@@ -13,7 +14,8 @@ import PurchaseOrder from "./bo/PurchaseOrder";
 import PurchaseDetails from "./bo/PurchaseDetails";
 import SaleSummary from "./bo/SaleSummary";
 import Products from "./bo/Products";
-import AddProduct from "./bo/AddProduct";
+import AddProduct from "./bo/addEditProduct.jsx";
+import EditProduct from "./bo/EditProduct";
 import AddRetailProduct from "./bo/AddRetail";
 import Supplies from "./bo/Supplies";
 import SupplyTransactions from "./bo/SupplyTransactions";
@@ -24,8 +26,7 @@ import SaleReport from "./reports/SaleReport";
 import InventoryReport from "./reports/InventoryReport";
 import ExpiredProducts from "./bo/ExpiredProducts";
 import RetailProducts from "./bo/RetailProducts";
-import ProductDetailsPage from "./components/singleProduct"; // you'll create this
-
+import ProductDetailsPage from "./components/singleProduct";
 
 import About from "./fe/About";
 import SidebarNav from "./main/SidebarNav";
@@ -34,12 +35,11 @@ import HeaderBarPos from "./main/HeaderBarPos";
 import FooterPos from "./main/FooterPos";
 import StaticDropdownSample from "./fe/StaticDropdownSample";
 import Login from "./main/Login";
-import { useLocation } from "react-router-dom";
-import CategorySidebarNav from "./components/categorySideBar"; // adjust path as needed
+import CategorySidebarNav from "./components/categorySideBar";
 
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min";
-import process from "process";
+
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
@@ -71,7 +71,7 @@ function App() {
       inactivityTimeout.current = setTimeout(
         () => handleLogout(),
         60 * 60 * 1000
-      ); // 60 minutes
+      );
     }
   }, [lastActivity, isLoggedIn]);
 
@@ -119,7 +119,6 @@ function App() {
     </Router>
   );
 }
-// import { useLocation } from 'react-router-dom';
 
 function AppContent({
   isLoggedIn,
@@ -135,44 +134,35 @@ function AppContent({
   const [isScannerActive, setIsScannerActive] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
 
-  // Handle window resize for screenWidth
   useEffect(() => {
     const handleResize = () => setScreenWidth(window.innerWidth);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Fetch categories when user is logged in
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         const token = localStorage.getItem("accessToken");
         if (!token) throw new Error("No token");
-
         const res = await axios.get(
           `${process.env.REACT_APP_API_URL}/categories`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
+          { headers: { Authorization: `Bearer ${token}` } }
         );
-
         const decodedCategories = [
           { categoryID: "All", categoryName: "All" },
           ...res.data.map((cat) => ({
             categoryID: cat.category_id,
-            categoryName: atob(cat.name), // decodeBase64
+            categoryName: atob(cat.name),
           })),
         ];
-
         setCategories(decodedCategories);
       } catch (error) {
         console.error("Failed to fetch categories:", error);
       }
     };
 
-    if (isLoggedIn) {
-      fetchCategories();
-    }
+    if (isLoggedIn) fetchCategories();
   }, [isLoggedIn]);
 
   return (
@@ -191,7 +181,6 @@ function AppContent({
                   setIsScannerActive={setIsScannerActive}
                   setModalOpen={setModalOpen}
                 />
-
                 <CategorySidebarNav
                   categories={categories}
                   selectedCategory={selectedCategory}
@@ -202,19 +191,14 @@ function AppContent({
             ) : (
               <>
                 <HeaderBar onLogout={handleLogout} />
-
                 <SidebarNav onLogout={handleLogout} />
               </>
             ))}
 
-          <div className="">
+          <div>
             <Routes>
               <Route path="/" element={<div>Welcome to Dashboard!</div>} />
-              <Route
-                path="/dashboard"
-                element={<div>Welcome to Dashboard!</div>}
-              />
-
+              <Route path="/dashboard" element={<div>Welcome to Dashboard!</div>} />
               <Route path="/categories" element={<Categories />} />
               <Route path="/suppliers" element={<Suppliers />} />
               <Route path="/product-types" element={<ProductTypes />} />
@@ -242,23 +226,21 @@ function AppContent({
                   />
                 }
               />
-
               <Route path="/retail-products" element={<RetailProducts />} />
               <Route path="/products" element={<Products />} />
+
+              {/* Add & Edit product routes */}
+              <Route path="/add-product" element={<AddProduct />} />
+              <Route path="/products/edit/:id" element={<AddProduct />} />
+
+              {/* Product detail page */}
               <Route path="/products/:id" element={<ProductDetailsPage />} />
 
               <Route path="/add-retail" element={<AddRetailProduct />} />
-              <Route path="/add-product" element={<AddProduct />} />
               <Route path="/supplies" element={<Supplies />} />
-              <Route
-                path="/supply-transactions"
-                element={<SupplyTransactions />}
-              />
+              <Route path="/supply-transactions" element={<SupplyTransactions />} />
               <Route path="/About" element={<About />} />
-              <Route
-                path="/StaticDropdown"
-                element={<StaticDropdownSample />}
-              />
+              <Route path="/StaticDropdown" element={<StaticDropdownSample />} />
             </Routes>
           </div>
         </>
