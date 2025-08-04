@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { fetchQueryData } from "../../api/fetchData";
 import { updateQueryData } from "../../api/updateData";
-import { decodeBase64 } from "../../utils/decode"; 
+import { decodeBase64 } from "../../utils/decode";
 import { FaRegEdit, FaRegTrashAlt } from "react-icons/fa";
 
 // blank variant factory
@@ -71,73 +71,70 @@ const VariantsTab = ({
 
   // 2) Fetch from backend once when you actually have an ID & edit mode
   useEffect(() => {
-  if (!isEditMode || !productId) {
-    setVariants([]);
-    return;
-  }
-  
-  setIsLoading(true);
-  setErrorMessage("");
+    if (!isEditMode || !productId) {
+      setVariants([]);
+      return;
+    }
 
-  fetchQueryData(localStorage.getItem("accessToken"), {
-  table: "product_variants",
-  columns: "*",
-  where: `product_id = ${productId}`,
-  order: "product_variant_id ASC",
-})
-  .then((rows) => {
-    const parsed = (rows || []).map((v) => {
-      // parse & decode attributes as before
-      let attrs = {};
-      if (v.attributes) {
-        if (typeof v.attributes === "string") {
-          try {
-            attrs = JSON.parse(v.attributes);
-          } catch {
-            try {
-              attrs = JSON.parse(window.atob(v.attributes));
-            } catch {
-              attrs = {};
+    setIsLoading(true);
+    setErrorMessage("");
+
+    fetchQueryData(localStorage.getItem("accessToken"), {
+      table: "product_variants",
+      columns: "*",
+      where: `product_id = ${productId}`,
+      order: "product_variant_id ASC",
+    })
+      .then((rows) => {
+        const parsed = (rows || []).map((v) => {
+          // parse & decode attributes
+          let attrs = {};
+          if (v.attributes) {
+            if (typeof v.attributes === "string") {
+              try {
+                attrs = JSON.parse(v.attributes);
+              } catch {
+                try {
+                  attrs = JSON.parse(window.atob(v.attributes));
+                } catch {
+                  attrs = {};
+                }
+              }
+            } else if (typeof v.attributes === "object") {
+              attrs = v.attributes;
             }
           }
-        } else if (typeof v.attributes === "object") {
-          attrs = v.attributes;
-        }
-      }
+          return {
+            ...v,
+            sku: v.sku ? decodeBase64(v.sku) : "",
+            barcode: v.barcode ? decodeBase64(v.barcode) : "",
+            unit_name: v.unit_name ? decodeBase64(v.unit_name) : "",
+            model_number: v.model_number ? decodeBase64(v.model_number) : "",
+            serial_number: v.serial_number
+              ? decodeBase64(v.serial_number)
+              : "",
+            color: v.color ? decodeBase64(v.color) : "",
+            size: v.size ? decodeBase64(v.size) : "",
+            warranty_period: v.warranty_period
+              ? Number(decodeBase64(v.warranty_period))
+              : null,
+            tax_class: v.tax_class ? decodeBase64(v.tax_class) : "",
+            status: v.status ? decodeBase64(v.status) : "",
+            attributes: attrs,
+          };
+        });
 
-      // decode all core fields from Base64
-      return {
-        ...v,
-        sku: v.sku ? decodeBase64(v.sku) : "",
-        barcode: v.barcode ? decodeBase64(v.barcode) : "",
-        unit_name: v.unit_name ? decodeBase64(v.unit_name) : "",
-        model_number: v.model_number ? decodeBase64(v.model_number) : "",
-        serial_number: v.serial_number ? decodeBase64(v.serial_number) : "",
-        color: v.color ? decodeBase64(v.color) : "",
-        size: v.size ? decodeBase64(v.size) : "",
-        warranty_period: v.warranty_period
-          ? Number(decodeBase64(v.warranty_period))
-          : null,
-        tax_class: v.tax_class ? decodeBase64(v.tax_class) : "",
-        status: v.status ? decodeBase64(v.status) : "",
-        attributes: attrs,
-      };
-    });
+        setVariants(parsed);
+        onChange(parsed);
+      })
+      .catch((err) => {
+        console.error("Error loading variants:", err);
+        setErrorMessage("Failed to load variants.");
+      })
+      .finally(() => setIsLoading(false));
+  }, [isEditMode, productId]);
 
-    setVariants(parsed);
-    onChange(parsed);
-  })
-
-    .catch((err) => {
-      console.error("Error loading variants:", err);
-      setErrorMessage("Failed to load variants.");
-    })
-    .finally(() => setIsLoading(false));
-}, [isEditMode, productId]);
-
-
-
-  // Helpers to sync and manage modal
+  // Sync local state up to parent
   const syncUp = (next) => {
     setVariants(next);
     onChange(next);
@@ -147,6 +144,7 @@ const VariantsTab = ({
     setModalVariant(blankVariant(productId));
     setEditingIndex(null);
     setModalAttributes([]);
+    setErrorMessage("");
     setShowModal(true);
   };
 
@@ -157,153 +155,218 @@ const VariantsTab = ({
     setModalAttributes(
       Object.entries(v.attributes || {}).map(([key, value]) => ({ key, value }))
     );
+    setErrorMessage("");
     setShowModal(true);
   };
 
-// inside VariantsTab:
-const handleDelete = async (idx) => {
-  const v = variants[idx];
-
-  // if it's already persisted, delete on server first
-  if (v.product_variant_id > 0) {
-    setIsSaving(true);
-    setErrorMessage("");
-    try {
-      const token = localStorage.getItem("accessToken");
-      if (!token) throw new Error("No token found");
-
-      await axios.delete(
-        `${process.env.REACT_APP_API_URL}/delete/product_variants`,
-        {
-          data: { product_variant_id: v.product_variant_id },
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-    } catch (err) {
-      console.error("Error deleting variant:", err);
-      setErrorMessage("Failed to delete variant.");
-      setIsSaving(false);
-      return;
-    } finally {
-      setIsSaving(false);
+  const handleDelete = async (idx) => {
+    const v = variants[idx];
+    if (v.product_variant_id > 0) {
+      setIsSaving(true);
+      setErrorMessage("");
+      try {
+        const token = localStorage.getItem("accessToken");
+        await axios.delete(
+          `${process.env.REACT_APP_API_URL}/delete/product_variants`,
+          {
+            data: { product_variant_id: v.product_variant_id },
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+      } catch (err) {
+        console.error("Error deleting variant:", err);
+        setErrorMessage("Failed to delete variant.");
+        setIsSaving(false);
+        return;
+      } finally {
+        setIsSaving(false);
+      }
     }
-  }
+    const next = variants.filter((_, i) => i !== idx);
+    syncUp(next);
+  };
 
-  // remove locally and notify parent
-  const next = variants.filter((_, i) => i !== idx);
-  setVariants(next);
-  onChange(next);
-};
+  // Updated handleModalSave with SKU duplication checks
+  const handleModalSave = async () => {
+    setErrorMessage("");
 
+    // Require SKU
+    if (!modalVariant.sku.trim()) {
+      setErrorMessage("SKU cannot be empty.");
+      return;
+    }
+    // Client-side duplicate check
+    const dup = variants.some(
+      (v, i) => v.sku === modalVariant.sku.trim() && i !== editingIndex
+    );
+    if (dup) {
+      setErrorMessage(`SKU "${modalVariant.sku}" already exists.`);
+      return;
+    }
 
-
-  const handleModalSave = () => {
+    // Build attributes object
     const attrsObj = modalAttributes.reduce((acc, { key, value }) => {
       if (key) acc[key] = value;
       return acc;
     }, {});
-    const toSave = { ...modalVariant, attributes: attrsObj };
 
+    // Update local list
+    const toSave = { ...modalVariant, attributes: attrsObj };
     const next = [...variants];
     if (editingIndex === null) next.push(toSave);
     else next[editingIndex] = toSave;
-
     syncUp(next);
     setShowModal(false);
+
+    // Persist immediately if in edit mode
+    if (isEditMode) {
+      setIsSaving(true);
+      try {
+        const token = localStorage.getItem("accessToken");
+        const payload = {
+          product_id: productId,
+          sku: modalVariant.sku.trim(),
+          barcode: modalVariant.barcode,
+          unit_name: modalVariant.unit_name,
+          model_number: modalVariant.model_number,
+          serial_number: modalVariant.serial_number,
+          color: modalVariant.color,
+          size: modalVariant.size,
+          warranty_period:
+            modalVariant.warranty_period !== ""
+              ? parseInt(modalVariant.warranty_period, 10)
+              : null,
+          tax_class: modalVariant.tax_class,
+          status: modalVariant.status,
+          attributes: JSON.stringify(attrsObj),
+        };
+
+        if (modalVariant.product_variant_id > 0) {
+          await updateQueryData(
+            token,
+            "product_variants",
+            payload,
+            { product_variant_id: modalVariant.product_variant_id }
+          );
+        } else {
+          await axios.post(
+            `${process.env.REACT_APP_API_URL}/insert/product_variants`,
+            payload,
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+        }
+      } catch (err) {
+        console.error("Error saving variant:", err);
+        // Handle duplicate‐SKU error from server
+        if (err.response?.data?.errno === 1062) {
+          setErrorMessage(`SKU "${modalVariant.sku}" already exists in database.`);
+        } else {
+          setErrorMessage("Failed to save variant.");
+        }
+      } finally {
+        setIsSaving(false);
+      }
+    }
   };
 
   // Persist all variants to the server
-    const saveAll = async () => {
+  const saveAll = async () => {
     if (!productId) {
-        setErrorMessage("Please save product info first.");
-        return;
+      setErrorMessage("Please save product info first.");
+      return;
     }
     setIsSaving(true);
     setErrorMessage("");
 
     try {
-        const token = localStorage.getItem("accessToken");
+      const token = localStorage.getItem("accessToken");
 
-        for (const v of variants) {
+      for (const v of variants) {
         const payload = {
-            product_id: productId,
-            sku: v.sku,
-            barcode: v.barcode,
-            unit_name: v.unit_name,
-            model_number: v.model_number,
-            serial_number: v.serial_number,
-            color: v.color,
-            size: v.size,
-            warranty_period: parseInt(v.warranty_period, 10) || null,
-            tax_class: v.tax_class,
-            status: v.status,
-            attributes: JSON.stringify(v.attributes),
+          product_id: productId,
+          sku: v.sku,
+          barcode: v.barcode,
+          unit_name: v.unit_name,
+          model_number: v.model_number,
+          serial_number: v.serial_number,
+          color: v.color,
+          size: v.size,
+          warranty_period: parseInt(v.warranty_period, 10) || null,
+          tax_class: v.tax_class,
+          status: v.status,
+          attributes: JSON.stringify(v.attributes),
         };
 
         if (v.product_variant_id > 0) {
-            await updateQueryData(
+          await updateQueryData(
             token,
             "product_variants",
             payload,
             { product_variant_id: v.product_variant_id }
-            );
+          );
         } else {
-            await axios.post(
+          await axios.post(
             `${process.env.REACT_APP_API_URL}/insert/product_variants`,
             payload,
             { headers: { Authorization: `Bearer ${token}` } }
-            );
+          );
         }
-        }
+      }
 
-        alert("✅ Variants saved successfully");
+      alert("✅ Variants saved successfully");
     } catch (err) {
-        console.error("Error saving variants:", err);
+      console.error("Error saving variants:", err);
+      if (err.response?.data?.errno === 1062) {
+        setErrorMessage("Duplicate SKU detected during save.");
+      } else {
         setErrorMessage("Failed to save variants.");
+      }
     } finally {
-        setIsSaving(false);
+      setIsSaving(false);
     }
-    };
+  };
 
   return (
     <>
+      {errorMessage && <div className="alert alert-danger">{errorMessage}</div>}
+
       <div
         className="table-responsive mb-3"
         style={{ maxHeight: "300px", overflowY: "auto" }}
-        >
+      >
         <table className="table table-striped table-hover table-sm align-middle">
-            <thead className="table-dark sticky-top">
+          <thead className="table-dark sticky-top">
             <tr>
-                <th style={{ width: "3%" }}>#</th>
-                <th style={{ width: "10%" }}>SKU</th>
-                <th style={{ width: "10%" }}>Barcode</th>
-                <th style={{ width: "8%" }}>Unit</th>
-                <th style={{ width: "10%" }}>Model</th>
-                <th style={{ width: "10%" }}>Serial</th>
-                <th style={{ width: "8%" }}>Color</th>
-                <th style={{ width: "5%" }}>Size</th>
-                <th style={{ width: "5%" }}>Warranty</th>
-                <th style={{ width: "10%" }}>Tax Class</th>
-                <th style={{ width: "5%" }}>Status</th>
-                <th style={{ width: "6%" }}></th>
+              <th style={{ width: "3%" }}>#</th>
+              <th style={{ width: "10%" }}>SKU</th>
+              <th style={{ width: "10%" }}>Barcode</th>
+              <th style={{ width: "8%" }}>Unit</th>
+              <th style={{ width: "10%" }}>Model</th>
+              <th style={{ width: "10%" }}>Serial</th>
+              <th style={{ width: "8%" }}>Color</th>
+              <th style={{ width: "5%" }}>Size</th>
+              <th style={{ width: "5%" }}>Warranty</th>
+              <th style={{ width: "10%" }}>Tax Class</th>
+              <th style={{ width: "5%" }}>Status</th>
+              <th style={{ width: "6%" }}></th>
             </tr>
-            </thead>
-            <tbody>
+          </thead>
+          <tbody>
             {variants.map((v, i) => (
-                <tr key={i}>
+              <tr key={i}>
                 <td className="text-center">{v.product_variant_id || "-"}</td>
                 <td className="text-truncate" style={{ maxWidth: "100px" }}>
-                    {v.sku}
+                  {v.sku}
                 </td>
                 <td className="text-truncate" style={{ maxWidth: "120px" }}>
-                    {v.barcode}
+                  {v.barcode}
                 </td>
                 <td>{v.unit_name}</td>
                 <td className="text-truncate" style={{ maxWidth: "120px" }}>
-                    {v.model_number}
+                  {v.model_number}
                 </td>
                 <td className="text-truncate" style={{ maxWidth: "120px" }}>
-                    {v.serial_number}
+                  {v.serial_number}
                 </td>
                 <td>{v.color}</td>
                 <td>{v.size}</td>
@@ -311,44 +374,37 @@ const handleDelete = async (idx) => {
                 <td>{v.tax_class}</td>
                 <td>{v.status}</td>
                 <td className="text-end">
-                    <button
+                  <button type="button"
                     className="btn btn-sm btn-outline-primary me-1"
                     onClick={() => handleEditClick(i)}
-                    >
+                  >
                     <FaRegEdit />
-                    </button>
-                    <button
+                  </button>
+                  <button type="button"
                     className="btn btn-sm btn-outline-danger"
                     onClick={() => handleDelete(i)}
-                    >
+                  >
                     <FaRegTrashAlt />
-                    </button>
+                  </button>
                 </td>
-                </tr>
+              </tr>
             ))}
             {!variants.length && (
-                <tr>
+              <tr>
                 <td colSpan="12" className="text-center text-muted py-4">
-                    No variants yet
+                  No variants yet
                 </td>
-                </tr>
+              </tr>
             )}
-            </tbody>
+          </tbody>
         </table>
-        </div>
+      </div>
 
-        <div className="d-flex justify-content-between">
-            <button className="btn btn-success" onClick={handleAddClick}>
-                ➕ Add Variant
-            </button>
-            <button
-                className="btn btn-primary"
-                onClick={saveAll}
-                disabled={isSaving || !productId}
-            >
-                {isSaving ? "Saving…" : "Save Variants"}
-            </button>
-        </div>
+      <div className="d-flex justify-content-between mb-3">
+        <button type="button" className="btn btn-success" onClick={handleAddClick}>
+          ➕ Add Variant
+        </button>
+      </div>
 
       {/* Modal */}
       {showModal && (
@@ -368,18 +424,21 @@ const handleDelete = async (idx) => {
                   onClick={() => setShowModal(false)}
                 />
               </div>
+              {/* Prominent error banner */}
+              {errorMessage && (
+                <div className="alert alert-danger m-3 position-sticky top-0 zindex-modal">
+                  {errorMessage}
+                </div>
+              )}
               <div className="modal-body">
                 <div className="row g-3">
                   {Object.keys(blankVariant(productId))
                     .filter((f) =>
-                      ![
-                        "product_variant_id",
-                        "product_id",
-                        "attributes",
-                      ].includes(f)
+                      !["product_variant_id", "product_id", "attributes"].includes(
+                        f
+                      )
                     )
                     .map((field) => {
-                      // Unit Name dropdown
                       if (field === "unit_name") {
                         return (
                           <div className="col-md-6" key={field}>
@@ -403,8 +462,6 @@ const handleDelete = async (idx) => {
                           </div>
                         );
                       }
-
-                      // Color dropdown
                       if (field === "color") {
                         return (
                           <div className="col-md-6" key={field}>
@@ -428,8 +485,6 @@ const handleDelete = async (idx) => {
                           </div>
                         );
                       }
-
-                      // Tax Class dropdown
                       if (field === "tax_class") {
                         return (
                           <div className="col-md-6" key={field}>
@@ -453,8 +508,6 @@ const handleDelete = async (idx) => {
                           </div>
                         );
                       }
-
-                      // Barcode w/ auto button
                       if (field === "barcode") {
                         return (
                           <div className="col-md-6" key={field}>
@@ -482,8 +535,6 @@ const handleDelete = async (idx) => {
                           </div>
                         );
                       }
-
-                      // Status dropdown
                       if (field === "status") {
                         return (
                           <div className="col-md-6" key={field}>
@@ -504,16 +555,13 @@ const handleDelete = async (idx) => {
                           </div>
                         );
                       }
-
-                      // Default text/number fields
-                      const type =
-                        field === "warranty_period" ? "number" : "text";
+                      const type = field === "warranty_period" ? "number" : "text";
                       return (
                         <div className="col-md-6" key={field}>
                           <label className="form-label">
-                            {field
-                              .replace(/_/g, " ")
-                              .replace(/\b\w/g, (l) => l.toUpperCase())}
+                            {field.replace(/_/g, " ").replace(/\b\w/g, (l) =>
+                              l.toUpperCase()
+                            )}
                           </label>
                           <input
                             type={type}
@@ -533,14 +581,11 @@ const handleDelete = async (idx) => {
                       );
                     })}
 
-                    {/* Key/value Attributes editor */}
+                  {/* Additional Attributes */}
                   <div className="col-12 mt-4">
                     <h6>Additional Attributes</h6>
                     {modalAttributes.map((attr, idx) => (
-                      <div
-                        className="row g-2 align-items-center mb-2"
-                        key={idx}
-                      >
+                      <div className="row g-2 align-items-center mb-2" key={idx}>
                         <div className="col-md-5">
                           <input
                             className="form-control"
@@ -550,8 +595,7 @@ const handleDelete = async (idx) => {
                               const copy = [...modalAttributes];
                               copy[idx].key = e.target.value;
                               setModalAttributes(copy);
-                            }}
-                          />
+                            }} />
                         </div>
                         <div className="col-md-5">
                           <input
@@ -562,17 +606,14 @@ const handleDelete = async (idx) => {
                               const copy = [...modalAttributes];
                               copy[idx].value = e.target.value;
                               setModalAttributes(copy);
-                            }}
-                          />
+                            }} />
                         </div>
                         <div className="col-md-2 text-end">
                           <button
                             type="button"
                             className="btn btn-outline-danger btn-sm"
                             onClick={() => {
-                              const copy = modalAttributes.filter(
-                                (_, i) => i !== idx
-                              );
+                              const copy = modalAttributes.filter((_, i) => i !== idx);
                               setModalAttributes(copy);
                             }}
                           >
@@ -585,10 +626,7 @@ const handleDelete = async (idx) => {
                       type="button"
                       className="btn btn-link p-0"
                       onClick={() =>
-                        setModalAttributes([
-                          ...modalAttributes,
-                          { key: "", value: "" },
-                        ])
+                        setModalAttributes([...modalAttributes, { key: "", value: "" }])
                       }
                     >
                       ➕ Add Attribute
