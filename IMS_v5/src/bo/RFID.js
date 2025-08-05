@@ -30,7 +30,7 @@ const RFIDTagsManagement = () => {
 
         const rfidTagsData = await fetchQueryData(token, {
             table:
-            "iposal.rfid_tags INNER JOIN inventory_locations ON rfid_tags.location_id = inventory_locations.location_id INNER JOIN products ON rfid_tags.product_id = products.product_id",
+            "iposarv3.rfid_tags INNER JOIN inventory_locations ON rfid_tags.location_id = inventory_locations.location_id INNER JOIN products ON rfid_tags.product_id = products.product_id",
           columns:
             "tag_id AS rTag_id, products.product_id AS pProduct_id, barcode AS pBarcode, products.name AS pName, inventory_locations.name AS lName, rfid_tags.last_scanned_time AS rLast_scanned_time, rfid_tags.quantity AS rQuantity",
         });
@@ -102,7 +102,7 @@ const RFIDTagsManagement = () => {
       // Refresh the transaction list
       const rfidTagsData = await fetchQueryData(token, {
         table:
-        "iposal.rfid_tags INNER JOIN inventory_locations ON rfid_tags.location_id = inventory_locations.location_id INNER JOIN products ON rfid_tags.product_id = products.product_id",
+        "iposarv3.rfid_tags INNER JOIN inventory_locations ON rfid_tags.location_id = inventory_locations.location_id INNER JOIN products ON rfid_tags.product_id = products.product_id",
       columns:
         "tag_id AS rTag_id, products.product_id AS pProduct_id, barcode AS pBarcode, products.name AS pName, inventory_locations.name AS lName, rfid_tags.last_scanned_time AS rLast_scanned_time, rfid_tags.quantity AS rQuantity",
     });
@@ -143,7 +143,7 @@ const RFIDTagsManagement = () => {
       const token = localStorage.getItem("accessToken");
       const rfidTagsData = await fetchQueryData(token, {
         table:
-        "iposal.rfid_tags INNER JOIN inventory_locations ON rfid_tags.location_id = inventory_locations.location_id INNER JOIN products ON rfid_tags.product_id = products.product_id",
+        "iposarv3.rfid_tags INNER JOIN inventory_locations ON rfid_tags.location_id = inventory_locations.location_id INNER JOIN products ON rfid_tags.product_id = products.product_id",
       columns:
         "tag_id AS rTag_id, products.product_id AS pProduct_id, barcode AS pBarcode, products.name AS pName, inventory_locations.name AS lName, rfid_tags.last_scanned_time AS rLast_scanned_time, rfid_tags.quantity AS rQuantity",
     });

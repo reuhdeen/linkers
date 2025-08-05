@@ -32,10 +32,10 @@ const LineGraph = () => {
         // Select the correct table based on the chosen duration
         const table =
           duration === "daily"
-            ? "iposal.daily_revenue_summary"
+            ? "iposarv3.daily_revenue_summary"
             : duration === "weekly"
-            ? "iposal.weekly_revenue_summary"
-            : "iposal.monthly_revenue_summary";
+            ? "iposarv3.weekly_revenue_summary"
+            : "iposarv3.monthly_revenue_summary";
 
         // Fetch data from API
         const reportsData = await fetchQueryData(token, {

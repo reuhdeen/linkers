@@ -20,7 +20,7 @@ const TopCategoriesProfit = () => {
         }
 
         const categoriesData = await fetchQueryData(token, {
-          table: "iposal.profit_per_category",
+          table: "iposarv3.profit_per_category",
           columns: "*",
         });
 

@@ -22,28 +22,31 @@ const FooterPos = ({
 
   return (
     <div className="footer-pos">
-      {/* <button className="btn btn-toggle-scanner" onClick={toggleScanner}>
-        {isScannerActive ? "🔴 Scanner ON" : "⚪ Scanner OFF"}
-      </button> */}
+      {/* Hold Button */}
+      <button className="btn btn-hold btn-footer" onClick={reloadPage}>
+        <FaPause className="footer-icon" />
+        <span className="footer-text">Hold</span>
+      </button>
 
-      <button className="btn btn-hold" onClick={reloadPage}>
-        <FaPause className="logout-icon" />
-        Hold
+      {/* Void Button */}
+      <button className="btn btn-void btn-footer" onClick={reloadPage}>
+        <FaTrashAlt className="footer-icon" />
+        <span className="footer-text">Void</span>
       </button>
-      <button className="btn btn-void" onClick={reloadPage}>
-        <FaTrashAlt className="logout-icon" />
-        Void
+
+      {/* Reset Button */}
+      <button className="btn btn-reset btn-footer" onClick={reloadPage}>
+        <FaRegArrowAltCircleUp className="footer-icon" />
+        <span className="footer-text">Reset</span>
       </button>
-      <button className="btn btn-reset" onClick={reloadPage}>
-        <FaRegArrowAltCircleUp className="logout-icon" />
-        Reset
-      </button>
+
+      {/* Unfinished Orders Button */}
       <button
-        className="btn btn-transactions"
+        className="btn btn-transactions btn-footer"
         onClick={() => setModalOpen(true)}
       >
-        <FaShoppingCart className="logout-icon" />
-        Unfinished Orders
+        <FaShoppingCart className="footer-icon" />
+        <span className="footer-text">Unfinished Orders</span>
       </button>
     </div>
   );

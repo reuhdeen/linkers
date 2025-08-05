@@ -22,7 +22,7 @@ const ExpiredProducts = () => {
 
       const productsData = await fetchQueryData(token, {
         table:
-          "iposal.products INNER JOIN categories on categories.category_id = products.category_id INNER JOIN product_types ON products.product_type_id = product_types.product_type_id INNER JOIN suppliers ON products.supplier_id = suppliers.supplier_id",
+          "iposarv3.products INNER JOIN categories on categories.category_id = products.category_id INNER JOIN product_types ON products.product_type_id = product_types.product_type_id INNER JOIN suppliers ON products.supplier_id = suppliers.supplier_id",
         columns:
           "products.*, categories.name AS categoryName, product_types.name AS productTypeName, suppliers.name AS supplierName",
         where: `products.category_id = '${categoryId}'`,

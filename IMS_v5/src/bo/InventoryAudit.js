@@ -31,7 +31,7 @@ const AuditsManagement = () => {
 
         const auditsData = await fetchQueryData(token, {
           table:
-          "iposal.audit_report",
+          "iposarv3.audit_report",
         columns:
           "*",
         });
@@ -103,7 +103,7 @@ const AuditsManagement = () => {
       // Refresh the transaction list
       const auditsData = await fetchQueryData(token, {
         table:
-        "iposal.audit_report",
+        "iposarv3.audit_report",
       columns:
         "*",
       });
@@ -145,7 +145,7 @@ const AuditsManagement = () => {
       const token = localStorage.getItem("accessToken");
       const auditsData = await fetchQueryData(token, {
         table:
-        "iposal.audit_report",
+        "iposarv3.audit_report",
       columns:
         "*",
       });

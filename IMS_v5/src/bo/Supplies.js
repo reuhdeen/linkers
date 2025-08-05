@@ -38,7 +38,7 @@ const SuppliesManagement = () => {
 
       const suppliesData = await fetchQueryData(token, {
         table:
-          "iposal.supplies INNER JOIN categories on categories.category_id = supplies.category_id INNER JOIN suppliers ON supplies.supplier_id = suppliers.supplier_id",
+          "iposarv3.supplies INNER JOIN categories on categories.category_id = supplies.category_id INNER JOIN suppliers ON supplies.supplier_id = suppliers.supplier_id",
         columns:
           "supplies.*, categories.name AS categoryName, suppliers.name AS supplierName",
         where: `supplies.category_id = '${categoryId}'`,
@@ -124,7 +124,7 @@ const SuppliesManagement = () => {
       console.log("Inventory created successfully", response.data);
       const suppliesData = await fetchQueryData(token, {
         table:
-          "iposal.supplies INNER JOIN categories on categories.category_id = supplies.category_id INNER JOIN suppliers ON supplies.supplier_id = suppliers.supplier_id",
+          "iposarv3.supplies INNER JOIN categories on categories.category_id = supplies.category_id INNER JOIN suppliers ON supplies.supplier_id = suppliers.supplier_id",
         columns:
           "supplies.*, categories.name AS categoryName, suppliers.name AS supplierName",
         where: `supplies.category_id = '${SelectedSupplyCategory.id}'`,

@@ -41,7 +41,7 @@ const ProductTypesManagement = () => {
         }
 
         const productTypesData = await fetchQueryData(token, {
-          table: `iposal.products 
+          table: `iposarv3.products 
                   INNER JOIN categories ON categories.category_id = products.category_id 
                   INNER JOIN suppliers ON suppliers.supplier_id = products.supplier_id 
                   LEFT JOIN sale_details ON sale_details.product_id = products.product_id 

@@ -93,7 +93,7 @@ const TransactionsManagement = () => {
 
         const transactionsData = await fetchQueryData(token, {
           table:
-            "iposal.sales INNER JOIN cashiers ON sales.cashier_id = cashiers.cashier_id",
+            "iposarv3.sales INNER JOIN cashiers ON sales.cashier_id = cashiers.cashier_id",
           columns:
             "sales.*, cashiers.name AS cashierName",
         });
@@ -186,7 +186,7 @@ const TransactionsManagement = () => {
       const token = localStorage.getItem("accessToken");
       const transactionsData = await fetchQueryData(token, {
         table:
-          "iposal.inventory_transactions INNER JOIN inventory_locations ON inventory_transactions.location_id = inventory_locations.location_id INNER JOIN products ON inventory_transactions.product_id = products.product_id",
+          "iposarv3.inventory_transactions INNER JOIN inventory_locations ON inventory_transactions.location_id = inventory_locations.location_id INNER JOIN products ON inventory_transactions.product_id = products.product_id",
         columns:
           "transaction_id AS iTransaction_id, products.product_id AS pProduct_id, barcode AS pBarcode, products.name AS pName,inventory_locations.location_id AS lLocation_id, inventory_locations.name AS lName, transaction_type AS iTransaction_type, quantity AS iQuantity, transaction_date AS iTransaction_date, reference_id AS iReference_id, inventory_transactions.batch_number AS iBatch_number, handling_notes AS iHandling_notes",
       });

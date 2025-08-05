@@ -29,7 +29,7 @@ const PurchaseOrder = () => {
 
         const purchasesData = await fetchQueryData(token, {
           table:
-            "iposal.purchase_orders INNER JOIN suppliers ON purchase_orders.supplier_id = suppliers.supplier_id",
+            "iposarv3.purchase_orders INNER JOIN suppliers ON purchase_orders.supplier_id = suppliers.supplier_id",
           columns: "*",
         });
 
@@ -91,7 +91,7 @@ const PurchaseOrder = () => {
 
       const purchasesData = await fetchQueryData(token, {
         table:
-          "iposal.purchase_orders INNER JOIN suppliers ON purchase_orders.supplier_id = suppliers.supplier_id",
+          "iposarv3.purchase_orders INNER JOIN suppliers ON purchase_orders.supplier_id = suppliers.supplier_id",
         columns: "*",
       });
 
