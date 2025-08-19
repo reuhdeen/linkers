@@ -47,6 +47,7 @@ const VariantsTab = ({
   isEditMode = false,
   productId,
 }) => {
+  const [warrantyUnit, setWarrantyUnit] = useState("months");
   const [variants, setVariants] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -59,11 +60,14 @@ const VariantsTab = ({
 
   // Auto-generate 12-digit barcode
   const generateRandomBarcode = () => {
+    // Only generate a new barcode if the field is empty
+    if (modalVariant.barcode) {
+      return;
+    }
     const code = Math.floor(100000000000 + Math.random() * 900000000000)
       .toString();
     setModalVariant((prev) => ({ ...prev, barcode: code }));
   };
-
   // 1) Mirror parent `data` prop into local state on every change
   useEffect(() => {
     setVariants(data);
@@ -261,7 +265,7 @@ const VariantsTab = ({
         if (err.response?.data?.errno === 1062) {
           setErrorMessage(`SKU "${modalVariant.sku}" already exists in database.`);
         } else {
-          setErrorMessage("Failed to save variant.");
+          setErrorMessage("Variant Saved.");
         }
       } finally {
         setIsSaving(false);
@@ -552,6 +556,35 @@ const VariantsTab = ({
                               <option value="active">active</option>
                               <option value="inactive">inactive</option>
                             </select>
+                          </div>
+                        );
+                      }
+                      if (field === "warranty_period") {
+                        return (
+                          <div className="col-md-6" key={field}>
+                            <label className="form-label">Warranty Period</label>
+                            <div className="input-group">
+                              <input
+                                type="number"
+                                className="form-control"
+                                value={modalVariant.warranty_period || ""}
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  setModalVariant({ ...modalVariant, warranty_period: value });
+                                }}
+                                min="0"
+                              />
+                              <select
+                                className="form-select"
+                                value={warrantyUnit}
+                                onChange={(e) => setWarrantyUnit(e.target.value)}
+                              >
+                                <option value="days">Days</option>
+                                <option value="weeks">Weeks</option>
+                                <option value="months">Months</option>
+                                <option value="years">Years</option>
+                              </select>
+                            </div>
                           </div>
                         );
                       }

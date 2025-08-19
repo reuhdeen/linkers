@@ -1750,10 +1750,17 @@ const Sales = ({ modalOpen, setModalOpen}) => {
                         </span>
                       )}
                       <img
-                        src={`/product_images/${product.productID}.png`}
+                          src={decodeBase64(product.media_url)}
                         className="img-fluid"
                         alt={decodeBase64(product.productName || "Dish")}
                       />
+{/* 
+                                              <img
+                          src={decodeBase64(item.media_url)}
+                          className="img-table"
+                          alt={decodeBase64(item.name)}
+                        /> */}
+
                       <div className="card-body text-center">
                         <span className="text-bold">
                           {decodeBase64(product.productName || "Dish")}
