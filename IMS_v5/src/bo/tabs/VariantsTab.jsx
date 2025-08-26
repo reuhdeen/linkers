@@ -51,7 +51,10 @@ const VariantsTab = ({
   const [variants, setVariants] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [statusMessage, setStatusMessage] = useState({
+    type: "", // can be 'success' or 'error'
+    message: ""
+  });
 
   const [showModal, setShowModal] = useState(false);
   const [modalVariant, setModalVariant] = useState(blankVariant(productId));
@@ -81,7 +84,7 @@ const VariantsTab = ({
     }
 
     setIsLoading(true);
-    setErrorMessage("");
+    setStatusMessage({ type: "", message: "" });
 
     fetchQueryData(localStorage.getItem("accessToken"), {
       table: "product_variants",
@@ -133,7 +136,7 @@ const VariantsTab = ({
       })
       .catch((err) => {
         console.error("Error loading variants:", err);
-        setErrorMessage("Failed to load variants.");
+        setStatusMessage({ type: "error", message: "Failed to load variants." });
       })
       .finally(() => setIsLoading(false));
   }, [isEditMode, productId]);
@@ -148,7 +151,7 @@ const VariantsTab = ({
     setModalVariant(blankVariant(productId));
     setEditingIndex(null);
     setModalAttributes([]);
-    setErrorMessage("");
+    setStatusMessage({ type: "", message: "" });
     setShowModal(true);
   };
 
@@ -159,7 +162,7 @@ const VariantsTab = ({
     setModalAttributes(
       Object.entries(v.attributes || {}).map(([key, value]) => ({ key, value }))
     );
-    setErrorMessage("");
+    setStatusMessage({ type: "", message: "" });
     setShowModal(true);
   };
 
@@ -167,7 +170,7 @@ const VariantsTab = ({
     const v = variants[idx];
     if (v.product_variant_id > 0) {
       setIsSaving(true);
-      setErrorMessage("");
+      setStatusMessage({ type: "", message: "" });
       try {
         const token = localStorage.getItem("accessToken");
         await axios.delete(
@@ -177,10 +180,10 @@ const VariantsTab = ({
             headers: { Authorization: `Bearer ${token}` },
           }
         );
+        setStatusMessage({ type: "success", message: "Variant deleted successfully." });
       } catch (err) {
         console.error("Error deleting variant:", err);
-        setErrorMessage("Failed to delete variant.");
-        setIsSaving(false);
+        setStatusMessage({ type: "error", message: "Failed to delete variant." });
         return;
       } finally {
         setIsSaving(false);
@@ -192,19 +195,19 @@ const VariantsTab = ({
 
   // Updated handleModalSave with SKU duplication checks
   const handleModalSave = async () => {
-    setErrorMessage("");
+    setStatusMessage({ type: "", message: "" });
 
     // Require SKU
     if (!modalVariant.sku.trim()) {
-      setErrorMessage("SKU cannot be empty.");
+      setStatusMessage({ type: "error", message: "SKU cannot be empty." });
       return;
     }
     // Client-side duplicate check
     const dup = variants.some(
-      (v, i) => v.sku === modalVariant.sku.trim() && i !== editingIndex
+      (v, i) => v.sku.trim() === modalVariant.sku.trim() && i !== editingIndex
     );
     if (dup) {
-      setErrorMessage(`SKU "${modalVariant.sku}" already exists.`);
+      setStatusMessage({ type: "error", message: `SKU "${modalVariant.sku}" already exists.` });
       return;
     }
 
@@ -252,20 +255,22 @@ const VariantsTab = ({
             payload,
             { product_variant_id: modalVariant.product_variant_id }
           );
+          setStatusMessage({ type: "success", message: "Variant updated successfully! ✨" });
         } else {
           await axios.post(
             `${process.env.REACT_APP_API_URL}/insert/product_variants`,
             payload,
             { headers: { Authorization: `Bearer ${token}` } }
           );
+          setStatusMessage({ type: "success", message: "New variant added successfully! ✨" });
         }
       } catch (err) {
         console.error("Error saving variant:", err);
-        // Handle duplicate‐SKU error from server
+        // Handle duplicate-SKU error from server
         if (err.response?.data?.errno === 1062) {
-          setErrorMessage(`SKU "${modalVariant.sku}" already exists in database.`);
+          setStatusMessage({ type: "error", message: `SKU "${modalVariant.sku}" already exists in the database.` });
         } else {
-          setErrorMessage("Variant Saved.");
+          setStatusMessage({ type: "error", message: "Failed to save variant." });
         }
       } finally {
         setIsSaving(false);
@@ -276,11 +281,11 @@ const VariantsTab = ({
   // Persist all variants to the server
   const saveAll = async () => {
     if (!productId) {
-      setErrorMessage("Please save product info first.");
+      setStatusMessage({ type: "error", message: "Please save product info first." });
       return;
     }
     setIsSaving(true);
-    setErrorMessage("");
+    setStatusMessage({ type: "", message: "" });
 
     try {
       const token = localStorage.getItem("accessToken");
@@ -317,13 +322,13 @@ const VariantsTab = ({
         }
       }
 
-      alert("✅ Variants saved successfully");
+      setStatusMessage({ type: "success", message: "✅ Variants saved successfully" });
     } catch (err) {
       console.error("Error saving variants:", err);
       if (err.response?.data?.errno === 1062) {
-        setErrorMessage("Duplicate SKU detected during save.");
+        setStatusMessage({ type: "error", message: "Duplicate SKU detected during save." });
       } else {
-        setErrorMessage("Failed to save variants.");
+        setStatusMessage({ type: "error", message: "Failed to save variants." });
       }
     } finally {
       setIsSaving(false);
@@ -332,7 +337,11 @@ const VariantsTab = ({
 
   return (
     <>
-      {errorMessage && <div className="alert alert-danger">{errorMessage}</div>}
+      {statusMessage.message && (
+        <div className={`alert alert-${statusMessage.type === "success" ? "success" : "danger"}`}>
+          {statusMessage.message}
+        </div>
+      )}
 
       <div
         className="table-responsive mb-3"
@@ -429,9 +438,9 @@ const VariantsTab = ({
                 />
               </div>
               {/* Prominent error banner */}
-              {errorMessage && (
+              {statusMessage.message && statusMessage.type === "error" && (
                 <div className="alert alert-danger m-3 position-sticky top-0 zindex-modal">
-                  {errorMessage}
+                  {statusMessage.message}
                 </div>
               )}
               <div className="modal-body">

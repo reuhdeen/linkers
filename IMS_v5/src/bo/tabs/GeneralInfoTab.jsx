@@ -8,13 +8,14 @@ const GeneralInfoTab = ({ data = {}, onChange, isEditMode = false }) => {
   const [suppliers, setSuppliers] = useState([]);
   const [categories, setCategories] = useState([]);
   const [brands, setBrands] = useState([]);
+  const [productTypes, setProductTypes] = useState([]); // New state for product types
 
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
     if (!token) return;
     (async () => {
       try {
-        const [sData, cData, bData] = await Promise.all([
+        const [sData, cData, bData, ptData] = await Promise.all([
           fetchQueryData(token, {
             table: "suppliers",
             columns: "*",
@@ -30,11 +31,17 @@ const GeneralInfoTab = ({ data = {}, onChange, isEditMode = false }) => {
             columns: "*",
             order: "brand_name ASC",
           }),
+          fetchQueryData(token, { // Fetch product types
+            table: "product_types",
+            columns: "product_type_id, name",
+            order: "name ASC",
+          }),
         ]);
 
         setSuppliers(sData.map((s) => ({ ...s, name: decodeBase64(s.name) })));
         setCategories(cData.map((c) => ({ ...c, name: decodeBase64(c.name) })));
         setBrands(bData.map((b) => ({ ...b, brand_name: decodeBase64(b.brand_name) })));
+        setProductTypes(ptData.map((pt) => ({ ...pt, name: decodeBase64(pt.name) })));
       } catch (err) {
         console.error("Dropdown fetch error:", err);
       }
@@ -57,9 +64,10 @@ const GeneralInfoTab = ({ data = {}, onChange, isEditMode = false }) => {
     brand_id: data.brand_id || "",
     supplier_id: data.supplier_id || "",
     category_id: data.category_id || "",
+    product_type_id: data.product_type_id || "", // New payload field
     description: data.description || "",
     slug: data.slug || data.name?.toLowerCase().replace(/\s+/g, "-") || "",
-    visibility: data.visibility || "public", // not encoded anymore
+    visibility: data.visibility || "public",
     is_featured: data.is_featured === 1 ? 1 : 0,
   };
 
@@ -178,12 +186,29 @@ const GeneralInfoTab = ({ data = {}, onChange, isEditMode = false }) => {
             </select>
           </div>
 
+          {/* New dropdown for Product Type */}
+          <div className="col-md-6">
+            <label className="form-label">Product Type</label>
+            <select
+              className="form-select"
+              value={data.product_type_id || ""}
+              onChange={(e) => handleChange("product_type_id", e.target.value)}
+            >
+              <option value="">Select product type</option>
+              {productTypes.map((pt) => (
+                <option key={pt.product_type_id} value={pt.product_type_id}>
+                  {pt.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
           <div className="col-md-12">
             <label className="form-label">Description</label>
             <textarea
               className="form-control"
               rows="4"
-              value={data.description || ""}
+              value={decodeBase64(data.description) || ""}
               onChange={(e) => handleChange("description", e.target.value)}
               placeholder="Describe the product"
             />

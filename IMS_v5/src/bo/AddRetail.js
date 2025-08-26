@@ -164,13 +164,21 @@ const AddRetailProduct = () => {
     }));
   };
 
-  const handleSubmit = async (e) => {
+const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!selectedVariantId) {
       alert("Please select a product variant.");
       return;
     }
+
+    // Filter out empty tiers and map to correct format
+    const filteredWholesalePrices = formData.wholesale_prices
+      .filter(tier => tier.quantity && tier.amount)
+      .map(tier => ({
+        quantity: parseInt(tier.quantity),
+        amount: parseFloat(tier.amount)
+      }));
 
     // Prepare payload, including calculated fields and new fields
     const payload = {
@@ -181,18 +189,13 @@ const AddRetailProduct = () => {
       promo_start_date: formData.promo_start_date || null,
       promo_end_date: formData.promo_end_date || null,
       is_taxable: formData.is_taxable,
-      promo_price: parseFloat(promoPrice) || 0, // Send calculated promo price
-      margin_price: parseFloat(marginPrice) || 0, // Send calculated margin
-      final_price: parseFloat(finalPrice) || 0, // Send calculated final price
-      wholesale_prices: formData.wholesale_prices
-        .filter(tier => tier.quantity && tier.amount) // Filter out empty tiers
-        .map(tier => ({
-          quantity: parseInt(tier.quantity),
-          amount: parseFloat(tier.amount)
-        })),
+      promo_price: parseFloat(promoPrice) || 0,
+      margin_price: parseFloat(marginPrice) || 0,
+      final_price: parseFloat(finalPrice) || 0,
+      wholesale_prices: JSON.stringify(filteredWholesalePrices), // Convert to JSON string
     };
 
-    console.log("Submitting payload:", payload); // For debugging
+    console.log("Submitting payload:", payload);
 
     try {
       const token = localStorage.getItem("accessToken");
@@ -201,7 +204,7 @@ const AddRetailProduct = () => {
       }
 
       const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/insert/retail_products`, // Adjust endpoint if needed
+        `${process.env.REACT_APP_API_URL}/insert/retail_products`,
         payload,
         {
           headers: {
